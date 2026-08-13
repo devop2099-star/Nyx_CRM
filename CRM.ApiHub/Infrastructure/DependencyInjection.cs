@@ -12,6 +12,7 @@ using CRM.ApiHub.Application.UseCases.Commissions;
 using CRM.ApiHub.Application.UseCases.Providers;
 using CRM.ApiHub.Application.UseCases.Activations;
 using CRM.ApiHub.Application.UseCases.Reports;
+using CRM.ApiHub.Application.UseCases.Checkpoints;
 using CRM.ApiHub.Domain.Repositories;
 using CRM.ApiHub.Infrastructure.Authentication;
 using CRM.ApiHub.Infrastructure.Persistence;
@@ -59,6 +60,21 @@ public static class DependencyInjection
         services.AddScoped<IProviderRepository, ProviderRepository>();
         services.AddScoped<IActivationRepository, ActivationRepository>();
         services.AddScoped<IReportRepository, ReportRepository>();
+        services.AddScoped<ICheckpointRepository, CheckpointRepository>();
+
+        // CheckpointEngine HTTP Client
+        services.AddHttpClient("CheckpointEngine", client =>
+        {
+            var baseUrl = config["CheckpointEngineSettings:BaseUrl"] ?? "http://localhost:5080";
+            client.BaseAddress = new System.Uri(baseUrl);
+        });
+
+        // ApprovalEngine HTTP Client
+        services.AddHttpClient("ApprovalEngine", client =>
+        {
+            var baseUrl = config["ApprovalEngineSettings:BaseUrl"] ?? "http://localhost:5081";
+            client.BaseAddress = new System.Uri(baseUrl);
+        });
 
         // Services & Stores
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
@@ -168,6 +184,10 @@ public static class DependencyInjection
         services.AddScoped<GetSalesByAsesorUseCase>();
         services.AddScoped<GetIncidentStatsUseCase>();
         services.AddScoped<GetActivationStatsUseCase>();
+
+        // Checkpoint Use Cases
+        services.AddScoped<GetOrderCheckpointsUseCase>();
+        services.AddScoped<UpdateCheckpointStatusUseCase>();
 
         // JWT Authentication
         var secretKey = config["JwtSettings:SecretKey"];
