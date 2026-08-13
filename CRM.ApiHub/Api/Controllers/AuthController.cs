@@ -59,7 +59,6 @@ public class AuthController : ControllerBase
     [HttpGet("me")]
     public async Task<IActionResult> Me()
     {
-        // El claim de ID de usuario puede venir mapeado como NameIdentifier o directamente como "sub"
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("sub");
         if (userIdClaim == null || !long.TryParse(userIdClaim.Value, out long userId))
         {
@@ -70,17 +69,24 @@ public class AuthController : ControllerBase
         if (userId == -999) return Ok(new { nombre = "test.asesor", rol = "ASESOR", campanaAsignada = "" });
         if (userId == -1000) return Ok(new { nombre = "test.backoffice", rol = "BACKOFFICE", campanaAsignada = "" });
 
-        var userDetail = await _meUseCase.ExecuteAsync(userId);
-        if (userDetail == null)
+        CRM.ApiHub.Domain.Entities.UserDetail? userDetail = null;
+        try
         {
-            return NotFound(new { message = "Usuario no encontrado." });
+            userDetail = await _meUseCase.ExecuteAsync(userId);
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[AUTH-DEBUG] DB Error in /me: {ex.Message}");
+        }
+
+        var usernameClaim = User.FindFirst("username")?.Value ?? User.FindFirst(ClaimTypes.Name)?.Value ?? "Usuario";
+        var roleClaim = User.FindFirst(ClaimTypes.Role)?.Value ?? User.FindFirst("roles")?.Value ?? "ASESOR";
 
         return Ok(new
         {
-            nombre = userDetail.Username,
-            rol = userDetail.RoleName,
-            campanaAsignada = userDetail.CampaignName
+            nombre = userDetail?.Username ?? usernameClaim,
+            rol = userDetail?.RoleName ?? roleClaim,
+            campanaAsignada = userDetail?.CampaignName ?? ""
         });
     }
 

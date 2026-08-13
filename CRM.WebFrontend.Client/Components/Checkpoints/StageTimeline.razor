@@ -1,0 +1,64 @@
+@using CRM.WebFrontend.Client.Models
+
+<div class="proto-card">
+    <div class="proto-card-head">
+        <div>
+            <h2>@Title</h2>
+            <p>Campaña: <b>@Campana</b> · Día simulado: <b>@DayCounter</b></p>
+        </div>
+        <span class="proto-pill proto-pill-navy" style="font-size:0.85rem; padding:6px 14px;">
+            Etapa Actual: @CurrentStageName
+        </span>
+    </div>
+
+    <!-- Tira de 10 Etapas -->
+    <div class="stage-strip">
+        @for (int i = 0; i < Stages.Length; i++)
+        {
+            var idx = i;
+            <div class="stage-dot-wrap">
+                <div class="stage-line"></div>
+                <div class="stage-dot @(idx < CurrentStageIdx ? "done" : "") @(idx == CurrentStageIdx ? "current" : "")"></div>
+                <div class="stage-label @(idx == CurrentStageIdx ? "current" : "")">@Stages[idx]</div>
+            </div>
+        }
+    </div>
+
+    <!-- Timeline de permanencia -->
+    @if (FechasPorEtapa.Any())
+    {
+        <div style="font-family:monospace; font-size:0.75rem; color:var(--proto-ink-muted); margin-top:6px;">
+            @string.Join("  ·  ", FechasPorEtapa.Select(kv => $"{kv.Key}: día {kv.Value}"))
+        </div>
+    }
+
+    <div class="mt-3">
+        <button class="proto-btn proto-btn-ghost proto-btn-sm" @onclick="OnAdvanceStage">
+            <i class="bi bi-arrow-right-circle"></i> → Avanzar a la siguiente etapa
+        </button>
+    </div>
+    
+    @if (!string.IsNullOrEmpty(BloqueoWarning))
+    {
+        <div class="proto-banner proto-banner-amber mt-2">
+            <i class="bi bi-lock-fill"></i> @BloqueoWarning
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public string Title { get; set; } = "Venta";
+    [Parameter] public string Campana { get; set; } = "General";
+    [Parameter] public int DayCounter { get; set; } = 1;
+    [Parameter] public int CurrentStageIdx { get; set; }
+    [Parameter] public string[] Stages { get; set; } = new string[] {
+        "Preventa", "Venta Creada", "Gestión Inicial", "Validación Interna",
+        "Envío Proveedor", "Validación Externa", "Firma", "Tramitación",
+        "Activación", "Postventa"
+    };
+    [Parameter] public Dictionary<string, int> FechasPorEtapa { get; set; } = new();
+    [Parameter] public string BloqueoWarning { get; set; } = string.Empty;
+    [Parameter] public EventCallback OnAdvanceStage { get; set; }
+
+    private string CurrentStageName => CurrentStageIdx >= 0 && CurrentStageIdx < Stages.Length ? Stages[CurrentStageIdx] : "—";
+}

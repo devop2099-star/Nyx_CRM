@@ -1,0 +1,1479 @@
+@page "/prototipo/checkpoints"
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "ADMIN_CRM,SUPERVISOR,BACKOFFICE,ASESOR,COORDINADOR")]
+@using MudBlazor
+@using CRM.WebFrontend.Client.Models
+@inject ISnackbar Snackbar
+@inject NavigationManager Nav
+
+<PageTitle>Prototipo — Modelo de Checkpoints V2</PageTitle>
+
+<style>
+    :root {
+        --proto-navy: #090C9B;
+        --proto-navy-dim: #1E2761;
+        --proto-ink: #171B3D;
+        --proto-ink-muted: #5B5F82;
+        --proto-paper: #F6F5F0;
+        --proto-paper2: #FFFFFF;
+        --proto-line: #E4E2DA;
+        --proto-gold: #D9A441;
+        --proto-gold-dim: #B98B36;
+        --proto-green: #1E7A4C;
+        --proto-green-bg: #E7F3EC;
+        --proto-red: #B00020;
+        --proto-red-bg: #FBEAE8;
+        --proto-amber: #B8862E;
+        --proto-amber-bg: #FBF2DF;
+        --proto-violet: #4C56A8;
+        --proto-violet-bg: #EBEDFA;
+    }
+
+    .proto-app {
+        max-width: 1240px;
+        margin: 0 auto;
+        padding: 1.5rem 1rem 3rem;
+        color: var(--proto-ink);
+    }
+
+    .proto-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+        gap: 14px;
+        background: #fff;
+        border-radius: 16px;
+        padding: 18px 24px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+        border: 1px solid var(--proto-line);
+    }
+
+    .proto-brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .proto-mark {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--proto-navy), #003B5C);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-weight: 800;
+        font-size: 1.25rem;
+        box-shadow: 0 4px 12px rgba(9,12,155,0.25);
+    }
+
+    .proto-tabs {
+        display: flex;
+        gap: 6px;
+        background: var(--proto-paper);
+        border: 1px solid var(--proto-line);
+        border-radius: 12px;
+        padding: 4px;
+    }
+
+    .proto-tab-btn {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--proto-ink-muted);
+        background: none;
+        border: none;
+        padding: 8px 18px;
+        border-radius: 9px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .proto-tab-btn.active {
+        background: var(--proto-navy);
+        color: #fff;
+        box-shadow: 0 2px 8px rgba(9,12,155,0.25);
+    }
+
+    .proto-card {
+        background: #fff;
+        border: 1px solid var(--proto-line);
+        border-radius: 16px;
+        padding: 20px 24px;
+        margin-bottom: 18px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+    }
+
+    .proto-card-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .proto-card-head h2 {
+        font-size: 1.15rem;
+        font-weight: 700;
+        margin: 0;
+        color: var(--proto-ink);
+    }
+
+    .proto-card-head p {
+        font-size: 0.8rem;
+        color: var(--proto-ink-muted);
+        margin: 4px 0 0;
+    }
+
+    .proto-btn {
+        font-size: 0.825rem;
+        font-weight: 700;
+        padding: 8px 16px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.18s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .proto-btn-primary { background: var(--proto-navy); color: #fff; }
+    .proto-btn-primary:hover { background: #003B5C; transform: translateY(-1px); }
+    .proto-btn-ghost { background: transparent; border: 1px solid var(--proto-line); color: var(--proto-ink); }
+    .proto-btn-ghost:hover { background: var(--proto-paper); }
+    .proto-btn-sm { padding: 5px 11px; font-size: 0.75rem; }
+    .proto-btn-green { background: var(--proto-green-bg); color: var(--proto-green); border: 1px solid rgba(30,122,76,0.3); }
+    .proto-btn-green:hover { background: #d3ecd9; }
+    .proto-btn-red { background: var(--proto-red-bg); color: var(--proto-red); border: 1px solid rgba(176,0,32,0.3); }
+    .proto-btn-red:hover { background: #fadbd8; }
+
+    /* Pill tags */
+    .proto-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-family: monospace;
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 3px 9px;
+        border-radius: 14px;
+        white-space: nowrap;
+    }
+
+    .proto-pill-green { background: var(--proto-green-bg); color: var(--proto-green); }
+    .proto-pill-red { background: var(--proto-red-bg); color: var(--proto-red); }
+    .proto-pill-amber { background: var(--proto-amber-bg); color: var(--proto-amber); }
+    .proto-pill-violet { background: var(--proto-violet-bg); color: var(--proto-violet); }
+    .proto-pill-navy { background: var(--proto-navy); color: #fff; }
+    .proto-pill-outline { background: transparent; border: 1px solid var(--proto-line); color: var(--proto-ink-muted); }
+
+    .tag-list { display: flex; gap: 5px; flex-wrap: wrap; }
+
+    /* Tables */
+    .proto-table { width: 100%; border-collapse: collapse; font-size: 0.825rem; }
+    .proto-table th { text-align: left; font-family: monospace; font-size: 0.72rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--proto-ink-muted); padding: 9px 10px; border-bottom: 2px solid var(--proto-line); }
+    .proto-table td { padding: 11px 10px; border-bottom: 1px solid var(--proto-line); vertical-align: middle; }
+    .proto-table tr:last-child td { border-bottom: none; }
+
+    /* Stage Strip (10 Etapas) */
+    .stage-strip {
+        display: flex;
+        align-items: center;
+        overflow-x: auto;
+        padding: 16px 0 10px;
+        margin-bottom: 10px;
+    }
+
+    .stage-dot-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-width: 86px;
+        position: relative;
+        flex: 1;
+    }
+
+    .stage-dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: #D8D6CC;
+        z-index: 2;
+        transition: all 0.25s ease;
+    }
+
+    .stage-dot.done { background: var(--proto-gold-dim); }
+    .stage-dot.current { background: var(--proto-gold); box-shadow: 0 0 0 5px rgba(217,164,65,0.28); }
+    .stage-line { position: absolute; top: 6px; left: 50%; width: 100%; height: 2px; background: var(--proto-line); z-index: 1; }
+    .stage-dot-wrap:last-child .stage-line { display: none; }
+    .stage-label { font-size: 0.72rem; margin-top: 8px; text-align: center; color: var(--proto-ink-muted); line-height: 1.2; font-weight: 500; }
+    .stage-label.current { color: var(--proto-ink); font-weight: 800; }
+
+    /* Venta chips */
+    .venta-select { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .venta-chip { padding: 8px 16px; border-radius: 10px; border: 1.5px solid var(--proto-line); background: #fff; cursor: pointer; font-size: 0.825rem; font-weight: 700; transition: all 0.15s ease; }
+    .venta-chip.active { border-color: var(--proto-navy); background: var(--proto-navy); color: #fff; }
+
+    /* Checklist de pasos */
+    .pasos-checklist { background: var(--proto-paper); border-radius: 10px; padding: 10px 14px; margin: 6px 0; border: 1px solid var(--proto-line); }
+    .pasos-checklist .paso-row { display: flex; align-items: center; gap: 8px; padding: 5px 0; font-size: 0.8rem; }
+    .pasos-checklist .paso-row.done { color: var(--proto-ink-muted); text-decoration: line-through; }
+    .pasos-progress { font-family: monospace; font-size: 0.72rem; color: var(--proto-ink-muted); margin-bottom: 6px; font-weight: 700; }
+
+    /* Banners */
+    .proto-banner { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 10px; font-size: 0.825rem; font-weight: 700; margin-top: 14px; }
+    .proto-banner-red { background: var(--proto-red-bg); color: var(--proto-red); border: 1px solid rgba(176,0,32,0.2); }
+    .proto-banner-green { background: var(--proto-green-bg); color: var(--proto-green); border: 1px solid rgba(30,122,76,0.2); }
+    .proto-banner-amber { background: var(--proto-amber-bg); color: var(--proto-amber); border: 1px solid rgba(184,134,46,0.2); }
+
+    /* Modals */
+    .proto-modal-overlay { position: fixed; inset: 0; background: rgba(9,12,45,0.6); z-index: 1050; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(4px); }
+    .proto-modal-box { background: #fff; border-radius: 18px; padding: 28px; width: 100%; max-width: 600px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto; }
+    .proto-field { margin-bottom: 14px; }
+    .proto-field label { display: block; font-family: monospace; font-size: 0.72rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--proto-ink-muted); margin-bottom: 5px; font-weight: 700; }
+    .proto-field input[type=text], .proto-field select { width: 100%; padding: 8px 12px; border: 1px solid var(--proto-line); border-radius: 8px; font-size: 0.85rem; background: var(--proto-paper); }
+    .proto-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .check-group { display: flex; gap: 14px; flex-wrap: wrap; }
+    .check-group label { display: flex; align-items: center; gap: 6px; font-size: 0.825rem; font-weight: 600; color: var(--proto-ink); }
+    .approval-box { background: var(--proto-paper); border: 1px dashed var(--proto-line); border-radius: 10px; padding: 14px 16px; margin-top: 6px; }
+
+    .history-item { display: flex; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--proto-line); font-size: 0.8rem; }
+    .history-item:last-child { border-bottom: none; }
+    .history-day { font-family: monospace; font-size: 0.72rem; color: var(--proto-gold-dim); min-width: 52px; font-weight: 800; }
+</style>
+
+<div class="proto-app">
+    <!-- Header -->
+    <div class="proto-header">
+        <div class="proto-brand">
+            <div class="proto-mark">G</div>
+            <div>
+                <h1 style="font-size:1.25rem; font-weight:800; margin:0;">GSI — Prototipo Modelo de Checkpoints V2</h1>
+                <span style="font-family:monospace; font-size:0.72rem; color:var(--proto-ink-muted);">ARQUITECTURA DE GOBERNANZA, 10 ETAPAS Y CONTABILIDAD DUAL</span>
+            </div>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            <div class="proto-tabs">
+                <button class="proto-tab-btn @(_activeTab == "catalogo" ? "active" : "")" @onclick='() => _activeTab = "catalogo"'>
+                    <i class="bi bi-gear-wide-connected me-1"></i> Catálogo (Capa 1)
+                </button>
+                <button class="proto-tab-btn @(_activeTab == "venta" ? "active" : "")" @onclick='() => _activeTab = "venta"'>
+                    <i class="bi bi-file-earmark-text-fill me-1"></i> Ficha de Venta (Capa 2)
+                </button>
+            </div>
+            <button class="proto-btn proto-btn-ghost proto-btn-sm" @onclick='() => Nav.NavigateTo("/supervisor")'>
+                <i class="bi bi-arrow-left"></i> Volver
+            </button>
+        </div>
+    </div>
+
+    @if (_activeTab == "catalogo")
+    {
+        <!-- TAB 1: CATÁLOGO DE CHECKPOINTS (CAPA 1) -->
+        <div class="proto-card">
+            <div class="proto-card-head">
+                <div>
+                    <h2>Catálogo de Checkpoints — Capa 1 (Gobernado)</h2>
+                    <p>Configuración versionada maestra. Cada fila nueva requiere Triple Firma antes de quedar activa.</p>
+                </div>
+                <button class="proto-btn proto-btn-primary" @onclick="() => _showNewCheckpointModal = true">
+                    <i class="bi bi-plus-lg"></i> Nuevo Checkpoint
+                </button>
+            </div>
+
+            @if (_catalog.Any(c => c.Estado != "ACTIVO"))
+            {
+                <div class="proto-banner proto-banner-amber mb-3">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <span>Hay checkpoints <b>PROPUESTOS</b> en el catálogo. Mientras no reúnan las firmas requeridas, no se auto-instanciarán en las ventas. Usa el botón "Aprobar ahora" para simular su activación.</span>
+                </div>
+            }
+
+            <table class="proto-table">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Aplica a</th>
+                        <th>Etapa Disparo</th>
+                        <th>Origen</th>
+                        <th>Alcance</th>
+                        <th>Bloquea</th>
+                        <th>Dueño</th>
+                        <th>Aprobación</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var c in _catalog)
+                    {
+                        <tr>
+                            <td>
+                                <b>@c.Nombre</b>
+                                @if (c.Pasos.Any())
+                                {
+                                    <span class="proto-pill proto-pill-outline ms-1">@c.Pasos.Count pasos</span>
+                                }
+                            </td>
+                            <td>@c.Aplica</td>
+                            <td><span style="font-family:monospace; font-size:0.75rem;">@c.Etapa</span></td>
+                            <td><span class="proto-pill @(c.Origen == "INTERNO" ? "proto-pill-violet" : "proto-pill-amber")">@c.Origen</span></td>
+                            <td><span style="font-family:monospace; font-size:0.75rem;">@c.Alcance</span></td>
+                            <td>
+                                <div class="tag-list">
+                                    @foreach (var b in c.Bloquea)
+                                    {
+                                        <span class="proto-pill proto-pill-red">@b</span>
+                                    }
+                                    @if (c.BloqueaAvance)
+                                    {
+                                        <span class="proto-pill proto-pill-amber">🔒 bloquea avance</span>
+                                    }
+                                    @if (!string.IsNullOrEmpty(c.RetrocedeA))
+                                    {
+                                        <span class="proto-pill proto-pill-red">⏪ retrocede a @c.RetrocedeA</span>
+                                    }
+                                    @if (c.DisparaSiKoDe.HasValue)
+                                    {
+                                        <span class="proto-pill proto-pill-violet">🔗 KO de #@c.DisparaSiKoDe</span>
+                                    }
+                                </div>
+                            </td>
+                            <td><span class="proto-pill proto-pill-violet">@c.Dueno</span></td>
+                            <td>
+                                @if (c.Estado == "ACTIVO")
+                                {
+                                    <span class="proto-pill proto-pill-green"><i class="bi bi-check-circle-fill me-1"></i>Activo</span>
+                                }
+                                else
+                                {
+                                    <span class="proto-pill proto-pill-amber">Propuesto</span>
+                                    <button class="proto-btn proto-btn-primary proto-btn-sm ms-2" @onclick="() => AprobarCheckpoint(c.Id)">
+                                        Aprobar ahora
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <!-- TAB 2: FICHA DE VENTA (CAPA 2) -->
+        <div class="venta-select">
+            @foreach (var v in _ventas.Values)
+            {
+                <div class="venta-chip @(v.Id == _currentVentaId ? "active" : "")" @onclick="() => _currentVentaId = v.Id">
+                    @v.Label
+                </div>
+            }
+            <button class="proto-btn proto-btn-ghost proto-btn-sm ms-auto" @onclick="() => _showNewVentaModal = true">
+                <i class="bi bi-plus-circle"></i> Nueva venta desde cero
+            </button>
+        </div>
+
+        <!-- Tarjeta 1: Lifecycle 10 Etapas -->
+        <div class="proto-card">
+            <div class="proto-card-head">
+                <div>
+                    <h2>Venta @CurrentVenta.Label</h2>
+                    <p>Campaña: <b>@CurrentVenta.Campana</b> · Día simulado: <b>@CurrentVenta.DayCounter</b></p>
+                </div>
+                <span class="proto-pill proto-pill-navy" style="font-size:0.85rem; padding:6px 14px;">
+                    Etapa Actual: @STAGES[CurrentVenta.StageIdx]
+                </span>
+            </div>
+
+            <!-- Tira de 10 Etapas -->
+            <div class="stage-strip">
+                @for (int i = 0; i < STAGES.Length; i++)
+                {
+                    var idx = i;
+                    <div class="stage-dot-wrap">
+                        <div class="stage-line"></div>
+                        <div class="stage-dot @(idx < CurrentVenta.StageIdx ? "done" : "") @(idx == CurrentVenta.StageIdx ? "current" : "")"></div>
+                        <div class="stage-label @(idx == CurrentVenta.StageIdx ? "current" : "")">@STAGES[idx]</div>
+                    </div>
+                }
+            </div>
+
+            <!-- Timeline de permanencia -->
+            <div style="font-family:monospace; font-size:0.75rem; color:var(--proto-ink-muted); margin-top:6px;">
+                @string.Join("  ·  ", CurrentVenta.FechasPorEtapa.Select(kv => $"{kv.Key}: día {kv.Value}"))
+            </div>
+
+            <div class="mt-3">
+                <button class="proto-btn proto-btn-ghost proto-btn-sm" @onclick="AvanzarEtapa">
+                    <i class="bi bi-arrow-right-circle"></i> → Avanzar a la siguiente etapa
+                </button>
+            </div>
+            
+            @if (!string.IsNullOrEmpty(_bloqueoAvanceWarning))
+            {
+                <div class="proto-banner proto-banner-amber mt-2">
+                    <i class="bi bi-lock-fill"></i> @_bloqueoAvanceWarning
+                </div>
+            }
+        </div>
+
+        <!-- Tarjeta 2: Ítems de la Venta (Ancla y Núcleo) -->
+        <div class="proto-card">
+            <div class="proto-card-head">
+                <div>
+                    <h2>Ítems de la Venta</h2>
+                    <p>Cada ítem posee su propio estado operativo, bandera de ancla y núcleo comercial.</p>
+                </div>
+                <button class="proto-btn proto-btn-ghost proto-btn-sm" @onclick="() => _showNewItemModal = true">
+                    <i class="bi bi-plus-lg"></i> Agregar Ítem
+                </button>
+            </div>
+
+            <table class="proto-table">
+                <thead>
+                    <tr>
+                        <th>Ítem</th>
+                        <th>es_ancla_etapa</th>
+                        <th>es_nucleo_comision</th>
+                        <th>Estado</th>
+                        <th>Activado</th>
+                        <th>Desconectado</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < CurrentVenta.Items.Count; i++)
+                    {
+                        var itIdx = i;
+                        var it = CurrentVenta.Items[itIdx];
+                        <tr>
+                            <td><b>@it.Nombre</b></td>
+                            <td>
+                                <span class="proto-pill @(it.Ancla ? "proto-pill-green" : "proto-pill-outline")">
+                                    @(it.Ancla ? "SÍ (Ancla)" : "no")
+                                </span>
+                            </td>
+                            <td>
+                                <span class="proto-pill @(it.Nucleo ? "proto-pill-violet" : "proto-pill-outline")">
+                                    @(it.Nucleo ? "SÍ (Núcleo)" : "no")
+                                </span>
+                            </td>
+                            <td>
+                                <span class="proto-pill @(it.Estado == "ACTIVO" ? "proto-pill-green" : it.Estado == "PENDIENTE" ? "proto-pill-amber" : "proto-pill-red")">
+                                    @it.Estado
+                                </span>
+                            </td>
+                            <td style="font-family:monospace;">@(it.FechaActivacion.HasValue ? $"Día {it.FechaActivacion}" : "—")</td>
+                            <td style="font-family:monospace;">@(it.FechaDesconexion.HasValue ? $"Día {it.FechaDesconexion}" + (it.FechaRecuperacion.HasValue ? $" → recup. día {it.FechaRecuperacion}" : "") : "—")</td>
+                            <td>
+                                @if (it.Estado == "PENDIENTE")
+                                {
+                                    <button class="proto-btn proto-btn-green proto-btn-sm" @onclick="() => ActivarItem(itIdx)">Marcar activo</button>
+                                }
+                                else if (it.Estado == "ACTIVO")
+                                {
+                                    <button class="proto-btn proto-btn-red proto-btn-sm" @onclick="() => DesconectarItem(itIdx)">Marcar desconectado / impago</button>
+                                }
+                                else if (it.Estado == "DESCONECTADO")
+                                {
+                                    <button class="proto-btn proto-btn-green proto-btn-sm" @onclick="() => RecuperarItem(itIdx)">🔄 Recuperar (reconectó)</button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Tarjeta 3: Resumen Contable Dual (2 Libros) -->
+        <div class="proto-card">
+            <div class="proto-card-head">
+                <div>
+                    <h2>💳 Resumen de Pagos — Dos Libros Contables</h2>
+                    <p>Libro 1: Liquidación Proveedor ➔ GSI | Libro 2: Comisión GSI ➔ Asesor Comercial.</p>
+                </div>
+            </div>
+            <div class="d-flex gap-2 flex-wrap mb-2">
+                <button class="proto-btn proto-btn-primary proto-btn-sm" @onclick="SimularCorteLiquidacion">
+                    💰 Correr corte de liquidación (Proveedor ➔ GSI)
+                </button>
+                <button class="proto-btn proto-btn-primary proto-btn-sm" @onclick="SimularPagoComercial">
+                    💵 Correr corte de pago a comercial (GSI ➔ Asesor)
+                </button>
+            </div>
+            <p style="font-size:0.75rem; color:var(--proto-ink-muted); margin-bottom:12px;">
+                ℹ Los cortes son eventos de calendario independientes del avance de etapa (ej. día 5 de mes), no compuertas que detienen el aprovisionamiento.
+            </p>
+
+            <table class="proto-table">
+                <thead>
+                    <tr>
+                        <th>Ítem</th>
+                        <th>Valor Liquidación</th>
+                        <th>Liquidado el</th>
+                        <th>Comisión Asesor</th>
+                        <th>Pagado el</th>
+                        <th>Estado del Pago</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var it in CurrentVenta.Items)
+                    {
+                        var (txt, cls) = GetEstadoPago(it);
+                        <tr>
+                            <td><b>@it.Nombre</b></td>
+                            <td style="font-family:monospace;">S/. @it.ValorLiquidacion.ToString("N2")</td>
+                            <td style="font-family:monospace;">@(it.FechaLiquidado.HasValue ? $"Día {it.FechaLiquidado}" : "—")</td>
+                            <td style="font-family:monospace;">S/. @it.ComisionComercial.ToString("N2")</td>
+                            <td style="font-family:monospace;">@(it.FechaPagoComercial.HasValue ? $"Día {it.FechaPagoComercial}" : "—")</td>
+                            <td><span class="proto-pill @cls">@txt</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <div class="d-flex gap-4 mt-3 pt-2 border-top flex-wrap" style="font-family:monospace; font-size:0.8rem;">
+                <span>Total liquidado a GSI: <b style="color:var(--proto-green);">S/. @TotalLiquidado.ToString("N2")</b></span>
+                <span>Total pagado a comerciales: <b style="color:var(--proto-navy);">S/. @TotalPagado.ToString("N2")</b></span>
+                <span>Total descomisión / descontado: <b style="color:var(--proto-red);">S/. @TotalDescontado.ToString("N2")</b></span>
+            </div>
+        </div>
+
+        <!-- Tarjeta 4: Checkpoints Activos en la Venta (Capa 2) -->
+        <div class="proto-card">
+            <div class="proto-card-head">
+                <div>
+                    <h2>Checkpoints Activos — Capa 2 (Instancia)</h2>
+                    <p>Generados automáticamente al ingresar a su etapa de disparo, por KO encadenado o apertura manual.</p>
+                </div>
+            </div>
+
+            @if (!CurrentVenta.Checkpoints.Any())
+            {
+                <div style="text-align:center; padding:24px; color:var(--proto-ink-muted); font-size:0.85rem;">
+                    Sin checkpoints activos para esta venta.
+                </div>
+            }
+            else
+            {
+                <table class="proto-table">
+                    <thead>
+                        <tr>
+                            <th>Checkpoint</th>
+                            <th>Alcance</th>
+                            <th>Abierto en</th>
+                            <th>Estado</th>
+                            <th>Bloquea</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < CurrentVenta.Checkpoints.Count; i++)
+                        {
+                            var cpIdx = i;
+                            var cp = CurrentVenta.Checkpoints[cpIdx];
+                            var def = _catalog.FirstOrDefault(c => c.Id == cp.CatalogId);
+                            if (def == null) continue;
+
+                            var completados = cp.PasosCompletados.Count(x => x);
+
+                            <tr>
+                                <td>
+                                    <b>@def.Nombre</b>
+                                    @if (def.Pasos.Any())
+                                    {
+                                        <span class="proto-pill proto-pill-outline ms-1">@completados/@def.Pasos.Count pasos</span>
+                                    }
+                                </td>
+                                <td><span style="font-family:monospace;">@def.Alcance</span></td>
+                                <td>
+                                    <span style="font-family:monospace;">
+                                        @(cp.Estado == "PROGRAMADO" ? $"Programado día {cp.FechaProgramada}" : $"Día {cp.FechaApertura}")
+                                    </span>
+                                    @if (cp.Retro)
+                                    {
+                                        <span class="proto-pill proto-pill-amber ms-1">retroactivo</span>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="proto-pill @(cp.Estado == "SUBSANADO" ? "proto-pill-green" : cp.Estado == "PENDIENTE" ? "proto-pill-amber" : "proto-pill-red")">
+                                        @cp.Estado
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="tag-list">
+                                        @foreach (var b in def.Bloquea)
+                                        {
+                                            <span class="proto-pill proto-pill-red">@b</span>
+                                        }
+                                    </div>
+                                </td>
+                                <td>
+                                    @if (cp.Estado == "PENDIENTE")
+                                    {
+                                        @if (def.Origen == "PROVEEDOR")
+                                        {
+                                            <span class="proto-pill proto-pill-amber me-1">esperando proveedor</span>
+                                            <button class="proto-btn proto-btn-ghost proto-btn-sm" @onclick='() => ResolverCheckpoint(cpIdx, "SUBSANADO")'>
+                                                Simular confirmación
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button class="proto-btn proto-btn-green proto-btn-sm me-1" @onclick='() => ResolverCheckpoint(cpIdx, "SUBSANADO")'>
+                                                Marcar subsanado
+                                            </button>
+                                            <button class="proto-btn proto-btn-red proto-btn-sm" @onclick='() => ResolverCheckpoint(cpIdx, "KO")'>
+                                                Marcar KO
+                                            </button>
+                                        }
+                                    }
+                                    else if (cp.Estado == "KO")
+                                    {
+                                        <button class="proto-btn proto-btn-ghost proto-btn-sm" @onclick="() => ReabrirCheckpoint(cpIdx)">
+                                            🔄 Asesor corrigió
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <span style="font-family:monospace; font-size:0.75rem; color:var(--proto-green);">✓ resuelto</span>
+                                    }
+                                </td>
+                            </tr>
+
+                            @if (def.Pasos.Any() && cp.Estado == "PENDIENTE")
+                            {
+                                <tr>
+                                    <td colspan="6" style="padding-top:0;">
+                                        <div class="pasos-checklist">
+                                            <div class="pasos-progress">Checklist de sub-pasos (Capa 2b): @completados / @def.Pasos.Count completados</div>
+                                            @for (int pIdx = 0; pIdx < def.Pasos.Count; pIdx++)
+                                            {
+                                                var localPIdx = pIdx;
+                                                var isDone = localPIdx < cp.PasosCompletados.Count && cp.PasosCompletados[localPIdx];
+                                                <div class="paso-row @(isDone ? "done" : "")">
+                                                    <input type="checkbox" checked="@isDone" @onchange="() => TogglePaso(cpIdx, localPIdx)" />
+                                                    <span>@(localPIdx + 1). @def.Pasos[localPIdx]</span>
+                                                </div>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            }
+
+            <!-- Banner dinámico de bloqueo -->
+            @{
+                var pendingBlocks = GetPendingBlocks();
+                var riesgos = GetRiesgos();
+            }
+
+            @if (pendingBlocks.Any())
+            {
+                <div class="proto-banner proto-banner-red">
+                    <i class="bi bi-x-octagon-fill"></i>
+                    <span>⊘ Procesos derivados retenidos: <b>@string.Join(", ", pendingBlocks)</b> — El aprovisionamiento con el proveedor continúa con normalidad.</span>
+                </div>
+            }
+            else if (riesgos.Any())
+            {
+                <div class="proto-banner proto-banner-amber">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <span>⚠ Riesgo operativo detectado: @string.Join(", ", riesgos) — Requiere seguimiento, no retiene comisiones.</span>
+                </div>
+            }
+            else if (CurrentVenta.Checkpoints.Any())
+            {
+                <div class="proto-banner proto-banner-green">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <span>✓ Todos los checkpoints resueltos — ningún proceso derivado retenido.</span>
+                </div>
+            }
+
+            <!-- Adjuntar Manualmente -->
+            <div class="d-flex gap-2 align-items-center mt-3 pt-2 border-top flex-wrap">
+                <select class="form-select form-select-sm" style="max-width:320px;" @bind="_selectedCheckpointToAttach">
+                    @foreach (var c in _catalog.Where(c => c.Estado == "ACTIVO" && !CurrentVenta.Checkpoints.Any(cp => cp.CatalogId == c.Id)))
+                    {
+                        <option value="@c.Id">@c.Nombre (dispara en @c.Etapa)</option>
+                    }
+                </select>
+                <button class="proto-btn proto-btn-ghost proto-btn-sm" @onclick="AdjuntarCheckpointManual">
+                    <i class="bi bi-paperclip"></i> + Adjuntar checkpoint a esta venta
+                </button>
+            </div>
+            @if (!string.IsNullOrEmpty(_retroWarning))
+            {
+                <div class="proto-banner proto-banner-amber mt-2">
+                    <i class="bi bi-info-circle-fill"></i> @_retroWarning
+                </div>
+            }
+        </div>
+
+        <!-- Tarjeta 5: Historial de la Venta -->
+        <div class="proto-card">
+            <div class="proto-card-head">
+                <div>
+                    <h2>Historial y Auditoría de la Venta</h2>
+                    <p>Registro cronológico de eventos con día simulado.</p>
+                </div>
+            </div>
+            <div>
+                @foreach (var h in CurrentVenta.Historial)
+                {
+                    <div class="history-item">
+                        <div class="history-day">Día @h.Dia</div>
+                        <div>@((MarkupString)h.Detalle)</div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+<!-- ==================== MODAL: NUEVO CHECKPOINT (CAPA 1) ==================== -->
+@if (_showNewCheckpointModal)
+{
+    <div class="proto-modal-overlay">
+        <div class="proto-modal-box">
+            <h3 style="font-size:1.25rem; font-weight:800; margin:0 0 4px;">Nuevo Checkpoint — Capa 1</h3>
+            <p style="font-size:0.75rem; color:var(--proto-ink-muted); margin-bottom:18px;">
+                Nace en estado <b>PROPUESTO</b> hasta reunir la Triple Firma de gobernanza.
+            </p>
+
+            <div class="proto-field">
+                <label>Nombre del Checkpoint</label>
+                <input type="text" placeholder='Ej. "Verificación de audio y sustento"' @bind="_newCpNombre" />
+            </div>
+
+            <div class="proto-field-row">
+                <div class="proto-field">
+                    <label>Aplica a (Campaña)</label>
+                    <select @bind="_newCpAplica">
+                        <option>Alarmas</option>
+                        <option>Telecom — Vodafone</option>
+                        <option>Telecom — Yoigo</option>
+                        <option>Telecom — MásMóvil</option>
+                        <option>Toda campaña nueva</option>
+                    </select>
+                </div>
+                <div class="proto-field">
+                    <label>Etapa Disparo</label>
+                    <select @bind="_newCpEtapa">
+                        @foreach (var stage in STAGES)
+                        {
+                            <option value="@stage">@stage</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="proto-field-row">
+                <div class="proto-field">
+                    <label>Origen</label>
+                    <div class="d-flex gap-3 mt-1">
+                        <label><input type="radio" name="cp-origen" value="INTERNO" checked="@(_newCpOrigen == "INTERNO")" @onchange='() => SetOrigen("INTERNO")' /> Interno</label>
+                        <label><input type="radio" name="cp-origen" value="PROVEEDOR" checked="@(_newCpOrigen == "PROVEEDOR")" @onchange='() => SetOrigen("PROVEEDOR")' /> Proveedor</label>
+                    </div>
+                </div>
+                <div class="proto-field">
+                    <label>Alcance</label>
+                    <div class="d-flex gap-3 mt-1">
+                        <label><input type="radio" name="cp-alcance" value="Venta" checked="@(_newCpAlcance == "Venta")" @onchange='() => _newCpAlcance = "Venta"' /> Venta</label>
+                        <label><input type="radio" name="cp-alcance" value="Ítem" checked="@(_newCpAlcance == "Ítem")" @onchange='() => _newCpAlcance = "Ítem"' /> Ítem</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="proto-field">
+                <label>Bloquea procesos derivados</label>
+                <div class="check-group">
+                    <label><input type="checkbox" @bind="_newCpBloqueaComision" /> Comisión</label>
+                    <label><input type="checkbox" @bind="_newCpBloqueaLiquidacion" /> Liquidación</label>
+                    <label><input type="checkbox" @bind="_newCpBloqueaAlta" /> Alta del servicio</label>
+                </div>
+            </div>
+
+            <div class="proto-field">
+                <label>Excepción — Bloquea avance de etapa</label>
+                <div class="check-group">
+                    <label><input type="checkbox" @bind="_newCpBloqueaAvance" /> Sí, impide avanzar de etapa mientras esté pendiente</label>
+                </div>
+                <small style="color:var(--proto-ink-muted); font-size:0.72rem;">⚠ Se marca automáticamente si el origen es Proveedor.</small>
+            </div>
+
+            <div class="proto-field">
+                <label>Excepción — Si sale KO, retrocede la venta</label>
+                <select @bind="_newCpRetrocedeA">
+                    <option value="">No retrocede (comportamiento estándar)</option>
+                    @foreach (var stage in STAGES.Take(9))
+                    {
+                        <option value="@stage">@stage</option>
+                    }
+                </select>
+            </div>
+
+            <div class="proto-field">
+                <label>Sub-pasos internos (Capa 1b - Checklist opcional)</label>
+                <div class="d-flex gap-2 mb-2">
+                    <input type="text" placeholder="Ej. Extraer audio de grabación" @bind="_tempPasoText" style="flex:1;" />
+                    <button type="button" class="proto-btn proto-btn-ghost proto-btn-sm" @onclick="AddPaso">+ Agregar</button>
+                </div>
+                <div class="tag-list">
+                    @for (int i = 0; i < _newCpPasos.Count; i++)
+                    {
+                        var pIdx = i;
+                        <span class="proto-pill proto-pill-violet">
+                            @(pIdx + 1). @_newCpPasos[pIdx]
+                            <button type="button" style="background:none; border:none; color:inherit; font-weight:800; margin-left:4px; cursor:pointer;" @onclick="() => _newCpPasos.RemoveAt(pIdx)">×</button>
+                        </span>
+                    }
+                </div>
+            </div>
+
+            <div class="proto-field">
+                <label>Departamento Dueño del Proceso</label>
+                <select @bind="_newCpDueno">
+                    <option>Finanzas</option>
+                    <option>Operaciones</option>
+                    <option>Backoffice</option>
+                    <option>Calidad</option>
+                    <option>Postventa</option>
+                    <option>Logística</option>
+                </select>
+            </div>
+
+            <div class="proto-field">
+                <label>Gobernanza y Aprobación Requerida</label>
+                <div class="approval-box">
+                    <div class="check-group">
+                        <label><input type="checkbox" checked disabled /> Data & Analytics (estructura - siempre)</label>
+                        <label><input type="checkbox" @bind="_firmaDueno" /> @_newCpDueno (dueño de proceso)</label>
+                        <label>
+                            <input type="checkbox" @bind="_firmaGerencia" /> Gerencia
+                            <span style="color:var(--proto-ink-muted); font-size:0.72rem;">@((_newCpBloqueaAvance || !string.IsNullOrEmpty(_newCpRetrocedeA)) ? "(obligatoria por excepción)" : "(opcional)")</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                <button class="proto-btn proto-btn-ghost" @onclick="() => _showNewCheckpointModal = false">Cancelar</button>
+                <button class="proto-btn proto-btn-primary" @onclick="GuardarNuevoCheckpoint">Guardar Checkpoint</button>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- ==================== MODAL: NUEVA VENTA ==================== -->
+@if (_showNewVentaModal)
+{
+    <div class="proto-modal-overlay">
+        <div class="proto-modal-box">
+            <h3 style="font-size:1.25rem; font-weight:800; margin:0 0 4px;">Nueva Venta desde Cero</h3>
+            <p style="font-size:0.75rem; color:var(--proto-ink-muted); margin-bottom:18px;">
+                Inicia en <b>Preventa (Etapa 0)</b>, sin ítems ni checkpoints iniciales.
+            </p>
+            <div class="proto-field">
+                <label>Número / Código de Venta</label>
+                <input type="text" placeholder="Ej. #6040" @bind="_newVentaNumero" />
+            </div>
+            <div class="proto-field">
+                <label>Campaña Comercial</label>
+                <select @bind="_newVentaCampana">
+                    <option>Alarmas</option>
+                    <option>Telecom — Vodafone</option>
+                    <option>Telecom — Yoigo</option>
+                    <option>Telecom — MásMóvil</option>
+                </select>
+            </div>
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                <button class="proto-btn proto-btn-ghost" @onclick="() => _showNewVentaModal = false">Cancelar</button>
+                <button class="proto-btn proto-btn-primary" @onclick="CrearNuevaVenta">Crear Venta</button>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- ==================== MODAL: NUEVO ÍTEM ==================== -->
+@if (_showNewItemModal)
+{
+    <div class="proto-modal-overlay">
+        <div class="proto-modal-box">
+            <h3 style="font-size:1.25rem; font-weight:800; margin:0 0 4px;">Agregar Ítem a la Venta</h3>
+            <div class="proto-field">
+                <label>Nombre del Producto / Servicio</label>
+                <input type="text" placeholder="Ej. Cámara IP adicional" @bind="_newItemNombre" />
+            </div>
+            <div class="proto-field">
+                <label>Banderas de Gobierno</label>
+                <div class="check-group">
+                    <label><input type="checkbox" @bind="_newItemAncla" /> es_ancla_etapa (confirma hito)</label>
+                    <label><input type="checkbox" @bind="_newItemNucleo" /> es_nucleo_comision</label>
+                </div>
+            </div>
+            <div class="proto-field-row">
+                <div class="proto-field">
+                    <label>Valor Liquidación Proveedor (S/.)</label>
+                    <input type="text" placeholder="Ej. 180" @bind="_newItemValorLiquidacion" />
+                </div>
+                <div class="proto-field">
+                    <label>Comisión Comercial Asesor (S/.)</label>
+                    <input type="text" placeholder="Ej. 45" @bind="_newItemComisionComercial" />
+                </div>
+            </div>
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                <button class="proto-btn proto-btn-ghost" @onclick="() => _showNewItemModal = false">Cancelar</button>
+                <button class="proto-btn proto-btn-primary" @onclick="AgregarItemAVenta">Agregar Ítem</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private static readonly string[] STAGES = new[] {
+        "Preventa", "Venta Creada", "Gestión Inicial", "Validación Interna",
+        "Envío Proveedor", "Validación Externa", "Firma", "Tramitación",
+        "Activación", "Postventa"
+    };
+
+    private string _activeTab = "catalogo";
+    private string _currentVentaId = "v1";
+    private int _selectedCheckpointToAttach = 1;
+    private string _bloqueoAvanceWarning = string.Empty;
+    private string _retroWarning = string.Empty;
+
+    // Helper property to access current sale cleanly
+    private SaleUiModel CurrentVenta => _ventas.ContainsKey(_currentVentaId) ? _ventas[_currentVentaId] : _ventas.Values.First();
+    private decimal TotalLiquidado => CurrentVenta.Items.Where(it => it.FechaLiquidado.HasValue).Sum(it => it.ValorLiquidacion);
+    private decimal TotalPagado => CurrentVenta.Items.Where(it => it.FechaPagoComercial.HasValue && !it.FechaDescuentoComercial.HasValue).Sum(it => it.ComisionComercial);
+    private decimal TotalDescontado => CurrentVenta.Items.Where(it => it.FechaDescuentoComercial.HasValue).Sum(it => it.ComisionComercial);
+
+    private HashSet<string> GetPendingBlocks()
+    {
+        var blocks = new HashSet<string>();
+        foreach (var cp in CurrentVenta.Checkpoints.Where(x => x.Estado == "PENDIENTE" || x.Estado == "KO"))
+        {
+            var def = _catalog.FirstOrDefault(c => c.Id == cp.CatalogId);
+            if (def != null)
+            {
+                foreach (var b in def.Bloquea) blocks.Add(b);
+            }
+        }
+        return blocks;
+    }
+
+    private List<string> GetRiesgos()
+    {
+        var riesgos = new List<string>();
+        foreach (var cp in CurrentVenta.Checkpoints.Where(x => x.Estado == "KO"))
+        {
+            var def = _catalog.FirstOrDefault(c => c.Id == cp.CatalogId);
+            if (def != null && !def.Bloquea.Any())
+            {
+                riesgos.Add(def.Nombre);
+            }
+        }
+        return riesgos;
+    }
+
+    // Modales
+    private bool _showNewCheckpointModal;
+    private bool _showNewVentaModal;
+    private bool _showNewItemModal;
+
+    // Form Nuevo Checkpoint
+    private string _newCpNombre = string.Empty;
+    private string _newCpAplica = "Alarmas";
+    private string _newCpEtapa = "Activación";
+    private string _newCpOrigen = "INTERNO";
+    private string _newCpAlcance = "Venta";
+    private bool _newCpBloqueaComision = true;
+    private bool _newCpBloqueaLiquidacion;
+    private bool _newCpBloqueaAlta;
+    private bool _newCpBloqueaAvance;
+    private string _newCpRetrocedeA = string.Empty;
+    private string _newCpDueno = "Finanzas";
+    private bool _firmaDueno;
+    private bool _firmaGerencia;
+    private string _tempPasoText = string.Empty;
+    private List<string> _newCpPasos = new();
+
+    // Form Nueva Venta
+    private string _newVentaNumero = string.Empty;
+    private string _newVentaCampana = "Alarmas";
+
+    // Form Nuevo Ítem
+    private string _newItemNombre = string.Empty;
+    private bool _newItemAncla;
+    private bool _newItemNucleo = true;
+    private string _newItemValorLiquidacion = "180";
+    private string _newItemComisionComercial = "45";
+
+    // Estado en memoria para interactividad total
+    private List<CheckpointCatalogItem> _catalog = new()
+    {
+        new CheckpointCatalogItem { Id = 1, Nombre = "Auditoría de audio", Aplica = "Alarmas", Etapa = "Activación", Origen = "INTERNO", Alcance = "Venta", Bloquea = new() { "Comisión", "Alta del servicio" }, BloqueaAvance = false, Dueno = "Finanzas", Pasos = new() { "Sacar todos los audios de la llamada", "Identificar los tramos de sustento", "Editar y compilar audio", "Enviar sustento al proveedor", "Esperar respuesta" }, Estado = "ACTIVO" },
+        new CheckpointCatalogItem { Id = 2, Nombre = "Revisión de supervisor", Aplica = "Toda campaña nueva", Etapa = "Gestión Inicial", Origen = "INTERNO", Alcance = "Venta", Bloquea = new(), BloqueaAvance = true, Dueno = "Operaciones", Pasos = new(), Estado = "ACTIVO" },
+        new CheckpointCatalogItem { Id = 3, Nombre = "Confirmación de firma de contrato", Aplica = "Toda campaña nueva", Etapa = "Firma", Origen = "PROVEEDOR", Alcance = "Venta", Bloquea = new() { "Liquidación", "Comisión" }, BloqueaAvance = true, Dueno = "Backoffice", Pasos = new(), Estado = "ACTIVO" },
+        new CheckpointCatalogItem { Id = 4, Nombre = "Seguimiento de satisfacción postventa", Aplica = "Toda campaña nueva", Etapa = "Postventa", Origen = "INTERNO", Alcance = "Venta", Bloquea = new(), BloqueaAvance = false, Dueno = "Postventa", Pasos = new() { "Llamar al cliente", "Confirmar satisfacción", "Identificar riesgo de baja" }, Estado = "ACTIVO" },
+        new CheckpointCatalogItem { Id = 5, Nombre = "Validación de Backoffice", Aplica = "Toda campaña nueva", Etapa = "Validación Interna", Origen = "INTERNO", Alcance = "Venta", Bloquea = new(), BloqueaAvance = true, RetrocedeA = "Gestión Inicial", Dueno = "Backoffice", Pasos = new(), Estado = "ACTIVO" },
+        new CheckpointCatalogItem { Id = 6, Nombre = "Validación de documentos externos", Aplica = "Toda campaña nueva", Etapa = "Validación Externa", Origen = "INTERNO", Alcance = "Venta", Bloquea = new(), BloqueaAvance = true, RetrocedeA = "Envío Proveedor", Dueno = "Backoffice", Pasos = new(), Estado = "ACTIVO" },
+        new CheckpointCatalogItem { Id = 7, Nombre = "Gestión de recuperación", Aplica = "Toda campaña nueva", Etapa = "Postventa", Origen = "INTERNO", Alcance = "Venta", Bloquea = new() { "Comisión" }, BloqueaAvance = false, DisparaSiKoDe = 4, Dueno = "Postventa", Pasos = new() { "Contactar cliente en riesgo", "Ofrecer alternativa de retención" }, Estado = "ACTIVO" },
+    };
+
+    private Dictionary<string, SaleUiModel> _ventas = new()
+    {
+        ["v1"] = new SaleUiModel
+        {
+            Id = "v1", Label = "#4821 · Alarmas", Campana = "Alarmas", StageIdx = 8, DayCounter = 6,
+            FechasPorEtapa = new() { ["Preventa"] = 1, ["Gestión Inicial"] = 3, ["Activación"] = 4 },
+            Items = new()
+            {
+                new SaleItemUiModel { Nombre = "Producto principal (Alarma)", Ancla = true, Nucleo = true, Estado = "ACTIVO", FechaActivacion = 4, ValorLiquidacion = 280, ComisionComercial = 250 },
+                new SaleItemUiModel { Nombre = "Cámara IP adicional", Ancla = false, Nucleo = false, Estado = "PENDIENTE", ValorLiquidacion = 60, ComisionComercial = 0 }
+            },
+            Checkpoints = new()
+            {
+                new CheckpointInstanceItem { CatalogId = 1, Estado = "PENDIENTE", FechaApertura = 4, Retro = false, PasosCompletados = new() { true, true, false, false, false } }
+            },
+            Historial = new()
+            {
+                new SaleHistoryEventUiModel { Dia = 1, Detalle = "Venta creada en <b>Preventa</b>" },
+                new SaleHistoryEventUiModel { Dia = 3, Detalle = "Avanza a <b>Gestión Inicial</b>" },
+                new SaleHistoryEventUiModel { Dia = 4, Detalle = "Avanza a <b>Activación</b> — se abre checkpoint <b>Auditoría de audio</b> automáticamente" },
+                new SaleHistoryEventUiModel { Dia = 6, Detalle = "Ítem <b>Cámara IP adicional</b> agregado — estado PENDIENTE" }
+            }
+        },
+        ["v2"] = new SaleUiModel
+        {
+            Id = "v2", Label = "#5310 · Telecom Vodafone", Campana = "Telecom — Vodafone", StageIdx = 8, DayCounter = 5,
+            FechasPorEtapa = new() { ["Preventa"] = 1, ["Validación Interna"] = 3, ["Activación"] = 5 },
+            Items = new()
+            {
+                new SaleItemUiModel { Nombre = "Fibra 600Mb", Ancla = true, Nucleo = true, Estado = "ACTIVO", FechaActivacion = 5, ValorLiquidacion = 180, ComisionComercial = 45 },
+                new SaleItemUiModel { Nombre = "Línea Móvil Principal", Ancla = false, Nucleo = true, Estado = "ACTIVO", FechaActivacion = 5, ValorLiquidacion = 90, ComisionComercial = 0 },
+                new SaleItemUiModel { Nombre = "Línea Móvil Adicional 2", Ancla = false, Nucleo = false, Estado = "PENDIENTE", ValorLiquidacion = 60, ComisionComercial = 0 }
+            },
+            Checkpoints = new(),
+            Historial = new()
+            {
+                new SaleHistoryEventUiModel { Dia = 1, Detalle = "Venta creada en <b>Preventa</b>" },
+                new SaleHistoryEventUiModel { Dia = 3, Detalle = "Avanza a <b>Validación Interna</b>" },
+                new SaleHistoryEventUiModel { Dia = 5, Detalle = "Avanza a <b>Activación</b> — sin checkpoints aplicables a esta campaña" }
+            }
+        },
+        ["v3"] = new SaleUiModel
+        {
+            Id = "v3", Label = "#4790 · Alarmas (resuelta)", Campana = "Alarmas", StageIdx = 9, DayCounter = 9,
+            FechasPorEtapa = new() { ["Preventa"] = 1, ["Activación"] = 4, ["Postventa"] = 9 },
+            Items = new()
+            {
+                new SaleItemUiModel { Nombre = "Producto principal (Alarma)", Ancla = true, Nucleo = true, Estado = "ACTIVO", FechaActivacion = 4, FechaLiquidado = 6, FechaPagoComercial = 8, ValorLiquidacion = 280, ComisionComercial = 250 }
+            },
+            Checkpoints = new()
+            {
+                new CheckpointInstanceItem { CatalogId = 1, Estado = "SUBSANADO", FechaApertura = 4, Retro = false, PasosCompletados = new() { true, true, true, true, true } }
+            },
+            Historial = new()
+            {
+                new SaleHistoryEventUiModel { Dia = 1, Detalle = "Venta creada en <b>Preventa</b>" },
+                new SaleHistoryEventUiModel { Dia = 4, Detalle = "Avanza a <b>Activación</b> — se abre checkpoint <b>Auditoría de audio</b>" },
+                new SaleHistoryEventUiModel { Dia = 8, Detalle = "Checkpoint <b>Auditoría de audio</b> marcado SUBSANADO" },
+                new SaleHistoryEventUiModel { Dia = 9, Detalle = "Avanza a <b>Postventa</b>" }
+            }
+        }
+    };
+
+    private void SetOrigen(string origen)
+    {
+        _newCpOrigen = origen;
+        _newCpBloqueaAvance = (origen == "PROVEEDOR");
+    }
+
+    private void AddPaso()
+    {
+        if (!string.IsNullOrWhiteSpace(_tempPasoText))
+        {
+            _newCpPasos.Add(_tempPasoText.Trim());
+            _tempPasoText = string.Empty;
+        }
+    }
+
+    private void AprobarCheckpoint(int id)
+    {
+        var cp = _catalog.FirstOrDefault(c => c.Id == id);
+        if (cp != null)
+        {
+            cp.Estado = "ACTIVO";
+            Snackbar.Add($"Checkpoint '{cp.Nombre}' activado con éxito (Triple Firma completada).", Severity.Success);
+        }
+    }
+
+    private void GuardarNuevoCheckpoint()
+    {
+        var nombre = string.IsNullOrWhiteSpace(_newCpNombre) ? "Checkpoint sin nombre" : _newCpNombre.Trim();
+        var bloquea = new List<string>();
+        if (_newCpBloqueaComision) bloquea.Add("Comisión");
+        if (_newCpBloqueaLiquidacion) bloquea.Add("Liquidación");
+        if (_newCpBloqueaAlta) bloquea.Add("Alta del servicio");
+
+        var necesitaGerencia = _newCpBloqueaAvance || !string.IsNullOrEmpty(_newCpRetrocedeA);
+        var requisitosCumplidos = _firmaDueno && (!necesitaGerencia || _firmaGerencia);
+        var estado = requisitosCumplidos ? "ACTIVO" : "PROPUESTO";
+
+        var newId = _catalog.Any() ? _catalog.Max(c => c.Id) + 1 : 1;
+        _catalog.Add(new CheckpointCatalogItem
+        {
+            Id = newId,
+            Nombre = nombre,
+            Aplica = _newCpAplica,
+            Etapa = _newCpEtapa,
+            Origen = _newCpOrigen,
+            Alcance = _newCpAlcance,
+            Bloquea = bloquea,
+            BloqueaAvance = _newCpBloqueaAvance,
+            RetrocedeA = string.IsNullOrEmpty(_newCpRetrocedeA) ? null : _newCpRetrocedeA,
+            Dueno = _newCpDueno,
+            Pasos = new List<string>(_newCpPasos),
+            Estado = estado
+        });
+
+        _showNewCheckpointModal = false;
+        _newCpNombre = string.Empty;
+        _newCpPasos.Clear();
+        Snackbar.Add(estado == "ACTIVO" ? "Checkpoint guardado y activo." : "Checkpoint guardado como PROPUESTO (falta firma).", Severity.Info);
+    }
+
+    private void CrearNuevaVenta()
+    {
+        var numero = string.IsNullOrWhiteSpace(_newVentaNumero) ? $"#{new Random().Next(1000, 9999)}" : _newVentaNumero.Trim();
+        var newId = $"v{_ventas.Count + 1}_{DateTime.Now.Ticks % 1000}";
+
+        _ventas[newId] = new SaleUiModel
+        {
+            Id = newId,
+            Label = $"{numero} · {_newVentaCampana}",
+            Campana = _newVentaCampana,
+            StageIdx = 0,
+            DayCounter = 1,
+            FechasPorEtapa = new() { ["Preventa"] = 1 },
+            Historial = new() { new SaleHistoryEventUiModel { Dia = 1, Detalle = "Venta creada en <b>Preventa</b>" } }
+        };
+
+        _currentVentaId = newId;
+        _showNewVentaModal = false;
+        _newVentaNumero = string.Empty;
+        Snackbar.Add("Venta creada exitosamente en Preventa.", Severity.Success);
+    }
+
+    private void AvanzarEtapa()
+    {
+        _bloqueoAvanceWarning = string.Empty;
+        var v = CurrentVenta;
+        if (v.StageIdx >= STAGES.Length - 1)
+        {
+            Snackbar.Add("La venta ya se encuentra en la etapa final (Postventa).", Severity.Info);
+            return;
+        }
+
+        // Blindaje: Checkpoint pendiente con bloqueaAvance
+        var bloqueante = v.Checkpoints.FirstOrDefault(cp => {
+            if (cp.Estado != "PENDIENTE") return false;
+            var def = _catalog.FirstOrDefault(c => c.Id == cp.CatalogId);
+            return def != null && def.BloqueaAvance;
+        });
+
+        if (bloqueante != null)
+        {
+            var def = _catalog.First(c => c.Id == bloqueante.CatalogId);
+            _bloqueoAvanceWarning = $"Avance bloqueado: El checkpoint '{def.Nombre}' está PENDIENTE y está configurado para impedir el avance. Resuélvelo primero.";
+            Snackbar.Add("Avance bloqueado por checkpoint pendiente.", Severity.Warning);
+            return;
+        }
+
+        v.StageIdx++;
+        v.DayCounter++;
+        var nuevaEtapa = STAGES[v.StageIdx];
+        v.FechasPorEtapa[nuevaEtapa] = v.DayCounter;
+        v.Historial.Add(new SaleHistoryEventUiModel { Dia = v.DayCounter, Detalle = $"Avanza a <b>{nuevaEtapa}</b>" });
+
+        // Auto-disparo de checkpoints del catálogo
+        var autoCheckpoints = _catalog.Where(c => c.Estado == "ACTIVO" && !c.DisparaSiKoDe.HasValue &&
+            (c.Aplica == v.Campana || c.Aplica == "Toda campaña nueva" || v.Campana.StartsWith(c.Aplica)) &&
+            c.Etapa == nuevaEtapa &&
+            !v.Checkpoints.Any(cp => cp.CatalogId == c.Id)).ToList();
+
+        foreach (var def in autoCheckpoints)
+        {
+            v.Checkpoints.Add(new CheckpointInstanceItem
+            {
+                CatalogId = def.Id,
+                Estado = "PENDIENTE",
+                FechaApertura = v.DayCounter,
+                PasosCompletados = def.Pasos.Select(_ => false).ToList()
+            });
+            v.Historial.Add(new SaleHistoryEventUiModel { Dia = v.DayCounter, Detalle = $"Se abre checkpoint <b>{def.Nombre}</b> automáticamente (etapa disparo)" });
+        }
+
+        Snackbar.Add($"Venta avanzó a {nuevaEtapa}", Severity.Success);
+    }
+
+    private void AgregarItemAVenta()
+    {
+        var v = CurrentVenta;
+        var nombre = string.IsNullOrWhiteSpace(_newItemNombre) ? "Ítem sin nombre" : _newItemNombre.Trim();
+        decimal.TryParse(_newItemValorLiquidacion, out var valorLiq);
+        decimal.TryParse(_newItemComisionComercial, out var comision);
+
+        v.DayCounter++;
+        v.Items.Add(new SaleItemUiModel
+        {
+            Nombre = nombre,
+            Ancla = _newItemAncla,
+            Nucleo = _newItemNucleo,
+            Estado = "PENDIENTE",
+            ValorLiquidacion = valorLiq,
+            ComisionComercial = comision
+        });
+
+        v.Historial.Add(new SaleHistoryEventUiModel { Dia = v.DayCounter, Detalle = $"Ítem <b>{nombre}</b> agregado — estado PENDIENTE" });
+        _showNewItemModal = false;
+        _newItemNombre = string.Empty;
+        Snackbar.Add("Ítem agregado a la venta.", Severity.Success);
+    }
+
+    private void ActivarItem(int idx)
+    {
+        var v = CurrentVenta;
+        var it = v.Items[idx];
+        it.Estado = "ACTIVO";
+        v.DayCounter++;
+        it.FechaActivacion = v.DayCounter;
+        v.Historial.Add(new SaleHistoryEventUiModel { Dia = v.DayCounter, Detalle = $"Ítem <b>{it.Nombre}</b> pasa a ACTIVO" });
+        Snackbar.Add($"Ítem '{it.Nombre}' activado.", Severity.Success);
+    }
+
+    private void DesconectarItem(int idx)
+    {
+        var v = CurrentVenta;
+        var it = v.Items[idx];
+        it.Estado = "DESCONECTADO";
+        v.DayCounter++;
+        it.FechaDesconexion = v.DayCounter;
+        v.Historial.Add(new SaleHistoryEventUiModel { Dia = v.DayCounter, Detalle = $"Ítem <b>{it.Nombre}</b> se DESCONECTA (o pasa a impago)" });
+        Snackbar.Add($"Ítem '{it.Nombre}' marcado como desconectado.", Severity.Warning);
+    }
+
+    private void RecuperarItem(int idx)
+    {
+        var v = CurrentVenta;
+        var it = v.Items[idx];
+        it.Estado = "ACTIVO";
+        v.DayCounter++;
+        it.FechaRecuperacion = v.DayCounter;
+        v.Historial.Add(new SaleHistoryEventUiModel { Dia = v.DayCounter, Detalle = $"Ítem <b>{it.Nombre}</b> RECUPERADO (el cliente se reconectó)" });
+        Snackbar.Add($"Ítem '{it.Nombre}' recuperado.", Severity.Success);
+    }
+
+    private void ResolverCheckpoint(int idx, string nuevoEstado)
+    {
+        var v = CurrentVenta;
+        var cp = v.Checkpoints[idx];
+        var def = _catalog.FirstOrDefault(c => c.Id == cp.CatalogId);
+        if (def == null) return;
+
+        cp.Estado = nuevoEstado;
+        v.DayCounter++;
+        v.Historial.Add(new SaleHistoryEventUiModel { Dia = v.DayCounter, Detalle = $"Checkpoint <b>{def.Nombre}</b> marcado {nuevoEstado}" });
+
+        if (nuevoEstado == "KO")
+        {
+            // Retroceso real
+            if (!string.IsNullOrEmpty(def.RetrocedeA))
+            {
+                var targetIdx = Array.IndexOf(STAGES, def.RetrocedeA);
+                if (targetIdx >= 0 && targetIdx < v.StageIdx)
+                {
+                    var anterior = STAGES[v.StageIdx];
+                    v.StageIdx = targetIdx;
+                    v.FechasPorEtapa[def.RetrocedeA] = v.DayCounter;
+                    v.Historial.Add(new SaleHistoryEventUiModel { Dia = v.DayCounter, Detalle = $"⏪ <b>RETROCESO REAL</b>: checkpoint <b>{def.Nombre}</b> hizo retroceder la venta de <b>{anterior}</b> a <b>{def.RetrocedeA}</b>" });
+                }
+            }
+
+            // Disparo encadenado
+            var encadenados = _catalog.Where(c => c.Estado == "ACTIVO" && c.DisparaSiKoDe == def.Id).ToList();
+            foreach (var enc in encadenados)
+            {
+                if (!v.Checkpoints.Any(c => c.CatalogId == enc.Id && c.Estado == "PENDIENTE"))
+                {
+                    v.DayCounter++;
+                    v.Checkpoints.Add(new CheckpointInstanceItem
+                    {
+                        CatalogId = enc.Id,
+                        Estado = "PENDIENTE",
+                        FechaApertura = v.DayCounter,
+                        PasosCompletados = enc.Pasos.Select(_ => false).ToList()
+                    });
+                    v.Historial.Add(new SaleHistoryEventUiModel { Dia = v.DayCounter, Detalle = $"🔗 Disparo encadenado: KO en <b>{def.Nombre}</b> abrió automáticamente <b>{enc.Nombre}</b>" });
+                }
+            }
+        }
+
+        Snackbar.Add(nuevoEstado == "SUBSANADO" ? "Checkpoint subsanado." : "Checkpoint marcado como KO.", nuevoEstado == "SUBSANADO" ? Severity.Success : Severity.Error);
+    }
+
+    private void ReabrirCheckpoint(int idx)
+    {
+        var v = CurrentVenta;
+        var cp = v.Checkpoints[idx];
+        var def = _catalog.FirstOrDefault(c => c.Id == cp.CatalogId);
+        cp.Estado = "PENDIENTE";
+        v.DayCounter++;
+        v.Historial.Add(new SaleHistoryEventUiModel { Dia = v.DayCounter, Detalle = $"Checkpoint <b>{def?.Nombre}</b> reabierto — asesor corrigió, vuelve a revisión" });
+        Snackbar.Add("Checkpoint reabierto para nueva revisión.", Severity.Info);
+    }
+
+    private void TogglePaso(int cpIdx, int pIdx)
+    {
+        var v = CurrentVenta;
+        var cp = v.Checkpoints[cpIdx];
+        var def = _catalog.FirstOrDefault(c => c.Id == cp.CatalogId);
+        if (pIdx < cp.PasosCompletados.Count)
+        {
+            cp.PasosCompletados[pIdx] = !cp.PasosCompletados[pIdx];
+            v.DayCounter++;
+            var pasoName = def != null && pIdx < def.Pasos.Count ? def.Pasos[pIdx] : $"Paso #{pIdx + 1}";
+            v.Historial.Add(new SaleHistoryEventUiModel { Dia = v.DayCounter, Detalle = $"Checkpoint <b>{def?.Nombre}</b> — paso \"{pasoName}\" marcado como {(cp.PasosCompletados[pIdx] ? "completado" : "pendiente")}" });
+        }
+    }
+
+    private void AdjuntarCheckpointManual()
+    {
+        _retroWarning = string.Empty;
+        var v = CurrentVenta;
+        var def = _catalog.FirstOrDefault(c => c.Id == _selectedCheckpointToAttach);
+        if (def == null) return;
+
+        var etapaDisparoIdx = Array.IndexOf(STAGES, def.Etapa);
+        var esRetro = v.StageIdx > etapaDisparoIdx;
+
+        v.DayCounter++;
+        v.Checkpoints.Add(new CheckpointInstanceItem
+        {
+            CatalogId = def.Id,
+            Estado = "PENDIENTE",
+            FechaApertura = v.DayCounter,
+            Retro = esRetro,
+            PasosCompletados = def.Pasos.Select(_ => false).ToList()
+        });
+
+        if (esRetro)
+        {
+            _retroWarning = $"Apertura retroactiva: La venta ya estaba en {STAGES[v.StageIdx]}, por delante de su etapa de disparo ({def.Etapa}). El aprovisionamiento externo no se detiene; solo se retienen los procesos derivados desde ahora.";
+            v.Historial.Add(new SaleHistoryEventUiModel { Dia = v.DayCounter, Detalle = $"⚠ Checkpoint <b>{def.Nombre}</b> abierto <b>retroactivamente</b>" });
+        }
+        else
+        {
+            v.Historial.Add(new SaleHistoryEventUiModel { Dia = v.DayCounter, Detalle = $"Checkpoint <b>{def.Nombre}</b> adjuntado manualmente en {STAGES[v.StageIdx]}" });
+        }
+
+        Snackbar.Add(esRetro ? "Checkpoint abierto retroactivamente." : "Checkpoint adjuntado a la venta.", Severity.Info);
+    }
+
+    private void SimularCorteLiquidacion()
+    {
+        var v = CurrentVenta;
+        v.DayCounter++;
+        var corteDay = v.DayCounter;
+
+        var bloqueantes = v.Checkpoints.Where(cp => cp.Estado == "PENDIENTE")
+            .Select(cp => _catalog.FirstOrDefault(c => c.Id == cp.CatalogId))
+            .Where(d => d != null && d.Bloquea.Contains("Liquidación")).ToList();
+
+        if (bloqueantes.Any())
+        {
+            v.Historial.Add(new SaleHistoryEventUiModel { Dia = corteDay, Detalle = $"💰 Corte de liquidación Proveedor➔GSI — <b>retenido</b> por checkpoint(s): {string.Join(", ", bloqueantes.Select(b => b!.Nombre))}" });
+            Snackbar.Add("Liquidación retenida por checkpoints bloqueantes.", Severity.Warning);
+            return;
+        }
+
+        var huboAccion = false;
+        foreach (var it in v.Items)
+        {
+            if (it.Estado == "ACTIVO" && !it.FechaLiquidado.HasValue)
+            {
+                it.FechaLiquidado = corteDay;
+                v.Historial.Add(new SaleHistoryEventUiModel { Dia = corteDay, Detalle = $"💰 Liquidación Proveedor➔GSI: ítem <b>{it.Nombre}</b> liquidado" });
+                huboAccion = true;
+            }
+            if (it.Estado == "DESCONECTADO" && it.FechaLiquidado.HasValue && !it.FechaDescuentoProveedor.HasValue)
+            {
+                it.FechaDescuentoProveedor = corteDay;
+                v.Historial.Add(new SaleHistoryEventUiModel { Dia = corteDay, Detalle = $"⚠ Proveedor descuenta a GSI por <b>{it.Nombre}</b> (desconexión)" });
+                huboAccion = true;
+            }
+        }
+
+        if (!huboAccion) v.Historial.Add(new SaleHistoryEventUiModel { Dia = corteDay, Detalle = "Corte de liquidación ejecutado — sin partidas pendientes" });
+        Snackbar.Add(huboAccion ? "Corte de liquidación ejecutado con éxito." : "Sin partidas pendientes de liquidar.", Severity.Info);
+    }
+
+    private void SimularPagoComercial()
+    {
+        var v = CurrentVenta;
+        v.DayCounter++;
+        var corteDay = v.DayCounter;
+
+        var bloqueantes = v.Checkpoints.Where(cp => cp.Estado == "PENDIENTE")
+            .Select(cp => _catalog.FirstOrDefault(c => c.Id == cp.CatalogId))
+            .Where(d => d != null && d.Bloquea.Contains("Comisión")).ToList();
+
+        if (bloqueantes.Any())
+        {
+            v.Historial.Add(new SaleHistoryEventUiModel { Dia = corteDay, Detalle = $"💵 Corte de pago a comercial — <b>retenido</b> por checkpoint(s): {string.Join(", ", bloqueantes.Select(b => b!.Nombre))}" });
+            Snackbar.Add("Pago a comercial retenido por checkpoints bloqueantes.", Severity.Warning);
+            return;
+        }
+
+        var huboAccion = false;
+        foreach (var it in v.Items)
+        {
+            if (it.FechaLiquidado.HasValue && !it.FechaPagoComercial.HasValue && it.Estado == "ACTIVO")
+            {
+                it.FechaPagoComercial = corteDay;
+                var tarde = it.FechaLiquidado.Value < corteDay - 1;
+                v.Historial.Add(new SaleHistoryEventUiModel { Dia = corteDay, Detalle = $"💵 Comisión pagada a asesor por <b>{it.Nombre}</b>{(tarde ? " — <b>recálculo automático liberado</b>" : "")}" });
+                huboAccion = true;
+            }
+            if (it.Estado == "DESCONECTADO" && it.FechaPagoComercial.HasValue && !it.FechaDescuentoComercial.HasValue)
+            {
+                it.FechaDescuentoComercial = corteDay;
+                v.Historial.Add(new SaleHistoryEventUiModel { Dia = corteDay, Detalle = $"⚠ GSI descuenta comisión a comercial por <b>{it.Nombre}</b> (descomisión)" });
+                huboAccion = true;
+            }
+        }
+
+        if (!huboAccion) v.Historial.Add(new SaleHistoryEventUiModel { Dia = corteDay, Detalle = "Corte de pago comercial ejecutado — sin comisiones pendientes" });
+        Snackbar.Add(huboAccion ? "Corte de pago a comerciales ejecutado con éxito." : "Sin comisiones pendientes de pago.", Severity.Info);
+    }
+
+    private (string, string) GetEstadoPago(SaleItemUiModel it)
+    {
+        if (it.FechaDescuentoComercial.HasValue) return ("Descontado a asesor", "proto-pill-red");
+        if (it.FechaDescuentoProveedor.HasValue && !it.FechaPagoComercial.HasValue) return ("Descontado a GSI — sin pagar a asesor", "proto-pill-red");
+        if (it.FechaPagoComercial.HasValue) return ("Pagado al asesor", "proto-pill-green");
+        if (it.FechaLiquidado.HasValue) return ("Liquidado a GSI — pendiente de pagar asesor", "proto-pill-amber");
+        if (it.Estado == "DESCONECTADO") return ("Desconectado antes de liquidar — no se paga", "proto-pill-outline");
+        if (it.Estado == "ACTIVO") return ("Activo — pendiente de liquidar con proveedor", "proto-pill-amber");
+        return ("Sin activar", "proto-pill-outline");
+    }
+}
