@@ -1,3 +1,7 @@
+using System;
+using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using CRM.ApiHub.Application.DTOs;
@@ -10,13 +14,19 @@ public class UpdateSalesOrderStatusUseCase
 {
     private readonly ISalesOrderRepository _salesOrderRepository;
     private readonly INotificationService _notificationService;
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly ICampaignRepository _campaignRepository;
 
     public UpdateSalesOrderStatusUseCase(
         ISalesOrderRepository salesOrderRepository,
-        INotificationService notificationService)
+        INotificationService notificationService,
+        IHttpClientFactory httpClientFactory,
+        ICampaignRepository campaignRepository)
     {
         _salesOrderRepository = salesOrderRepository;
         _notificationService = notificationService;
+        _httpClientFactory = httpClientFactory;
+        _campaignRepository = campaignRepository;
     }
 
     public async Task<bool> ExecuteAsync(long idOrder, SalesOrderUpdateStatusDto dto, long actorId, CancellationToken ct = default)
@@ -28,6 +38,44 @@ public class UpdateSalesOrderStatusUseCase
         if (existingOrder.IdStatus >= 3 && existingOrder.CustodyUserId.HasValue && existingOrder.CustodyUserId.Value != actorId)
         {
             throw new InvalidOperationException($"Transición de estado no permitida. La orden #{idOrder} se encuentra en custodia del usuario {existingOrder.CustodyUserId.Value}.");
+        }
+
+        // Check for progress-blocking checkpoints via CheckpointEngine microservice
+        var httpClient = _httpClientFactory.CreateClient("CheckpointEngine");
+        var evalResponse = await httpClient.PostAsJsonAsync("api/engine/evaluate-transition", new 
+        { 
+            EntityType = "Order", 
+            EntityId = idOrder.ToString(), 
+            ToStatusId = dto.ToStatusId 
+        }, ct);
+        
+        if (evalResponse.IsSuccessStatusCode)
+        {
+            var result = await evalResponse.Content.ReadFromJsonAsync<TransitionResultDto>(cancellationToken: ct);
+            if (result != null && !result.CanTransition)
+            {
+                var names = string.Join(", ", result.Blockers.Select(b => $"'{b.Name}' ({b.Department})"));
+                throw new InvalidOperationException($"Transición de estado bloqueada. Hay checkpoints pendientes de resolución: {names}.");
+            }
+        }
+
+        // Check for progress-blocking approvals via ApprovalEngine microservice
+        var approvalHttpClient = _httpClientFactory.CreateClient("ApprovalEngine");
+        var appEvalResponse = await approvalHttpClient.PostAsJsonAsync("api/engine/evaluate-approval-transition", new 
+        { 
+            EntityType = "Order", 
+            EntityId = idOrder.ToString(), 
+            ToStatusId = dto.ToStatusId 
+        }, ct);
+
+        if (appEvalResponse.IsSuccessStatusCode)
+        {
+            var appResult = await appEvalResponse.Content.ReadFromJsonAsync<TransitionResultDto>(cancellationToken: ct);
+            if (appResult != null && !appResult.CanTransition)
+            {
+                var names = string.Join(", ", appResult.Blockers.Select(b => $"'{b.Name}' ({b.Department})"));
+                throw new InvalidOperationException($"Transición de estado bloqueada. Hay aprobaciones obligatorias pendientes: {names}.");
+            }
         }
 
         var success = await _salesOrderRepository.UpdateStatusAsync(
@@ -42,6 +90,38 @@ public class UpdateSalesOrderStatusUseCase
 
         if (success)
         {
+            // Trigger any checkpoints associated with the new status via CheckpointEngine microservice
+            string campaignName = string.Empty;
+            if (existingOrder.IdCmpg > 0)
+            {
+                var cmp = await _campaignRepository.GetByIdAsync((int)existingOrder.IdCmpg);
+                if (cmp != null) campaignName = cmp.Name;
+            }
+
+            var metadata = new System.Collections.Generic.Dictionary<string, object>
+            {
+                { "campaign", campaignName }
+            };
+
+            await httpClient.PostAsJsonAsync("api/engine/trigger-checkpoints", new 
+            { 
+                EntityType = "Order", 
+                EntityId = idOrder.ToString(), 
+                ToStatusId = dto.ToStatusId,
+                Metadata = metadata
+            }, ct);
+
+            // Trigger any approval requests associated with the new status via ApprovalEngine microservice
+            await approvalHttpClient.PostAsJsonAsync("api/engine/create-request", new 
+            { 
+                EntityType = "Order", 
+                EntityId = idOrder.ToString(), 
+                TriggerStageId = dto.ToStatusId,
+                RequestedBy = actorId,
+                Reason = dto.Comment,
+                Metadata = metadata
+            }, ct);
+
             var order = await _salesOrderRepository.GetByIdAsync(idOrder, ct);
             if (order != null)
             {
@@ -88,4 +168,16 @@ public class UpdateSalesOrderStatusUseCase
 
         return success;
     }
+}
+
+public class TransitionResultDto
+{
+    public bool CanTransition { get; set; }
+    public System.Collections.Generic.List<BlockerDetailDto> Blockers { get; set; } = new();
+}
+
+public class BlockerDetailDto
+{
+    public string Name { get; set; } = string.Empty;
+    public string Department { get; set; } = string.Empty;
 }
