@@ -1,0 +1,171 @@
+# 📚 Memoria Técnica — Sistema CRM Call Center
+
+Bienvenido a la documentación técnica, funcional y operativa del sistema **CRM** (compuesto por el backend `CRM.ApiHub` y el frontend `CRM.WebFrontend`).
+
+Este repositorio sigue el **Estándar Documental Base** definido en [docs_guide.html](file:///home/hackyou/Documentos/CRM/CRM_API/docs_guide.html).
+
+> [!TIP]
+> 🌐 **Portal Interactivo de Documentación**: Accede a la versión navegable indexada con buscador en tiempo real en **[docs/index.html](index.html)**.
+
+---
+
+## 🗺️ Mapa Navegable de la Documentación
+
+- **00 - Overview/**
+  - [Glossary](00-overview/glossary.md)
+  - [Objectives](00-overview/objectives.md)
+  - [Project overview](00-overview/project-overview.md)
+  - [Roadmap](00-overview/roadmap.md)
+  - [Scope](00-overview/scope.md)
+- **01 - Architecture/**
+  - **Decisions/**
+    - [Readme](01-architecture/decisions/README.md)
+    - [Adr 001 hexagonal architecture](01-architecture/decisions/ADR-001-hexagonal-architecture.md)
+    - [Adr 002 postgresql fdw persistence](01-architecture/decisions/ADR-002-postgresql-fdw-persistence.md)
+    - [Adr 003 jwt authentication](01-architecture/decisions/ADR-003-jwt-authentication.md)
+  - [Architecture overview](01-architecture/architecture-overview.md)
+  - [Components](01-architecture/components.md)
+  - [Hexagonal architecture](01-architecture/hexagonal-architecture.md)
+  - [System context](01-architecture/system-context.md)
+- **02 - Modules/**
+  - [Readme](02-modules/README.md)
+  - **Authentication/**
+    - [Readme](02-modules/authentication/README.md)
+    - [Index](02-modules/authentication/index.html)
+  - **Backoffice Activations/**
+    - [Readme](02-modules/backoffice-activations/README.md)
+    - [Index](02-modules/backoffice-activations/index.html)
+  - **Commissions/**
+    - [Readme](02-modules/commissions/README.md)
+    - [Index](02-modules/commissions/index.html)
+  - **Kb Incidents/**
+    - [Readme](02-modules/kb-incidents/README.md)
+    - [Index](02-modules/kb-incidents/index.html)
+  - **Notifications/**
+    - [Readme](02-modules/notifications/README.md)
+    - [Index](02-modules/notifications/index.html)
+  - **Presales Leads/**
+    - [Readme](02-modules/presales-leads/README.md)
+    - [Index](02-modules/presales-leads/index.html)
+  - **Sales Orders/**
+    - [Readme](02-modules/sales-orders/README.md)
+    - [Index](02-modules/sales-orders/index.html)
+  - **Supervisor Audit/**
+    - [Readme](02-modules/supervisor-audit/README.md)
+    - [Index](02-modules/supervisor-audit/index.html)
+- **03 - Flows/**
+  - [Readme](03-flows/README.md)
+  - **Authentication/**
+    - [Login and token refresh](03-flows/authentication/login-and-token-refresh.md)
+  - **Sales Process/**
+    - [Presale to activation flow](03-flows/sales-process/presale-to-activation-flow.md)
+- **04 - Database/**
+  - **Queries/**
+    - [Common](04-database/queries/common.md)
+    - [Maintenance](04-database/queries/maintenance.md)
+    - [Troubleshooting](04-database/queries/troubleshooting.md)
+  - [Architecture](04-database/architecture.md)
+  - [Indexes](04-database/indexes.md)
+  - [Migrations](04-database/migrations.md)
+  - [Relationships](04-database/relationships.md)
+  - [Schemas](04-database/schemas.md)
+  - [Tables](04-database/tables.md)
+- **05 - Integrations/**
+  - [Readme](05-integrations/README.md)
+  - **Glpi/**
+    - [Integration](05-integrations/glpi/integration.md)
+  - **Postgresql Fdw/**
+    - [Fdw resilience](05-integrations/postgresql-fdw/fdw-resilience.md)
+  - **Smtp/**
+    - [Email notifications](05-integrations/smtp/email-notifications.md)
+- **06 - Infrastructure/**
+  - [Docker](06-infrastructure/docker.md)
+  - [Environments](06-infrastructure/environments.md)
+  - [Networking](06-infrastructure/networking.md)
+  - [Nginx](06-infrastructure/nginx.md)
+  - [Ssl](06-infrastructure/ssl.md)
+- **07 - Operations/**
+  - [Backup](07-operations/backup.md)
+  - [Deployment](07-operations/deployment.md)
+  - [Logs](07-operations/logs.md)
+  - [Monitoring](07-operations/monitoring.md)
+  - [Restore](07-operations/restore.md)
+  - [Rollback](07-operations/rollback.md)
+  - [Troubleshooting](07-operations/troubleshooting.md)
+- **08 - User Guides/**
+  - [Readme](08-user-guides/README.md)
+  - [Asesor guide](08-user-guides/asesor-guide.html)
+  - [Asesor guide](08-user-guides/asesor-guide.md)
+  - [Backoffice guide](08-user-guides/backoffice-guide.html)
+  - [Backoffice guide](08-user-guides/backoffice-guide.md)
+  - [Supervisor guide](08-user-guides/supervisor-guide.html)
+  - [Supervisor guide](08-user-guides/supervisor-guide.md)
+- **09 - Visual Docs/**
+  - [Readme](09-visual-docs/README.md)
+  - **Mockups/**
+    - [Readme](09-visual-docs/mockups/README.md)
+  - **Walkthroughs/**
+    - [Readme](09-visual-docs/walkthroughs/README.md)
+- **10 - Knowledge Base/**
+  - [Readme](10-knowledge-base/README.md)
+  - **Concepts/**
+    - [Readme](10-knowledge-base/concepts/README.md)
+    - [Fdw concept](10-knowledge-base/concepts/fdw-concept.md)
+  - **How To/**
+    - [Readme](10-knowledge-base/how-to/README.md)
+    - [Create user](10-knowledge-base/how-to/create-user.md)
+  - **Recipes/**
+    - [Readme](10-knowledge-base/recipes/README.md)
+    - [Clear redis](10-knowledge-base/recipes/clear-redis.md)
+  - **Runbooks/**
+    - [Readme](10-knowledge-base/runbooks/README.md)
+    - [Ssl renewal](10-knowledge-base/runbooks/ssl-renewal.md)
+  - **Troubleshooting/**
+    - [Fdw connection recovery](10-knowledge-base/troubleshooting/fdw-connection-recovery.md)
+- **11 - Incidents/**
+  - [Readme](11-incidents/README.md)
+  - **Bugs/**
+    - [Bug 001 sprint2 issues](11-incidents/bugs/BUG-001-sprint2-issues.md)
+  - **Incidents/**
+    - [Readme](11-incidents/incidents/README.md)
+  - **Known Issues/**
+    - [Readme](11-incidents/known-issues/README.md)
+    - [Ki 001 fdw timeout handling](11-incidents/known-issues/KI-001-fdw-timeout-handling.md)
+- **12 - Security/**
+  - [Authentication](12-security/authentication.md)
+  - [Authorization](12-security/authorization.md)
+  - [Hardening](12-security/hardening.md)
+  - [Permissions](12-security/permissions.md)
+  - [Secrets](12-security/secrets.md)
+- **13 - Testing/**
+  - [E2e tests](13-testing/e2e-tests.md)
+  - [Integration tests](13-testing/integration-tests.md)
+  - [Strategy](13-testing/strategy.md)
+  - [Unit tests](13-testing/unit-tests.md)
+- **14 - Changelog/**
+  - [Readme](14-changelog/README.md)
+  - **Releases/**
+    - [V1.0.0](14-changelog/releases/v1.0.0.md)
+  - [Breaking changes](14-changelog/breaking-changes.md)
+- **99 - Reference/**
+  - [Environment variables](99-reference/environment-variables.md)
+  - [Error codes](99-reference/error-codes.md)
+  - [Ports](99-reference/ports.md)
+  - [Services](99-reference/services.md)
+- **_Templates/**
+  - [Readme](_templates/README.md)
+  - **Adr/**
+    - [Template](_templates/ADR/template.md)
+  - **Bug/**
+    - [Template](_templates/bug/template.md)
+  - **Flow/**
+    - [Template](_templates/flow/template.md)
+  - **Html/**
+    - [Template](_templates/html/template.html)
+  - **Knowledge Base/**
+    - [Troubleshooting](_templates/knowledge-base/troubleshooting.md)
+  - **Module/**
+    - [Template](_templates/module/template.md)
+
+---
+*Última actualización general: 2026-08-06*

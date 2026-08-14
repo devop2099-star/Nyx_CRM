@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Módulo de Pre-Ventas y Leads — CRM Docs</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #fafafa;
+      --bg-subtle: #f4f4f6;
+      --surface: #ffffff;
+      --surface-2: #f8fafc;
+      --surface-hover: #f1f5f9;
+      --border: rgba(0, 0, 0, 0.08);
+      --border-subtle: rgba(0, 0, 0, 0.04);
+      --border-strong: rgba(0, 0, 0, 0.15);
+      --text: #0f172a;
+      --text-2: #334155;
+      --text-muted: #64748b;
+      --text-subtle: #94a3b8;
+      --accent: #0f172a;
+      --accent-hover: #1e293b;
+      --accent-bg: #f1f5f9;
+      --accent-text: #0f172a;
+      --nav-w: 280px;
+      --mono: 'JetBrains Mono', monospace;
+      --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --radius-sm: 4px;
+      --radius: 6px;
+      --radius-lg: 10px;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+      --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.06), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+      --shadow-lg: 0 12px 24px -4px rgba(0, 0, 0, 0.08), 0 4px 8px -2px rgba(0, 0, 0, 0.03);
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      letter-spacing: -0.011em;
+      display: flex;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Scrollbars */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.12); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.22); }
+
+    /* SIDEBAR */
+    nav#sidebar {
+      width: var(--nav-w);
+      min-width: var(--nav-w);
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 2.5rem;
+      z-index: 20;
+    }
+
+    .nav-header {
+      padding: 1.25rem 1.15rem 0.9rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+    .nav-logo-group {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--text);
+      letter-spacing: -0.015em;
+    }
+    .nav-logo-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: var(--radius-sm);
+      background: var(--accent);
+      color: #fff;
+    }
+    .nav-header span.version-tag {
+      background: var(--surface-2);
+      color: var(--text-muted);
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      font-weight: 500;
+      padding: 0.15rem 0.45rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+    }
+
+    .search-box {
+      padding: 0.75rem 0.9rem;
+      border-bottom: 1px solid var(--border-subtle);
+      position: relative;
+    }
+    .search-input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .search-icon-svg {
+      position: absolute;
+      left: 0.65rem;
+      color: var(--text-subtle);
+      pointer-events: none;
+    }
+    .search-box input {
+      width: 100%;
+      padding: 0.45rem 0.65rem 0.45rem 2rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.8rem;
+      font-family: var(--sans);
+      background: var(--bg-subtle);
+      color: var(--text);
+      outline: none;
+      transition: all 0.15s var(--ease-out);
+    }
+    .search-box input:focus {
+      background: var(--surface);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.06);
+    }
+    .search-box input::placeholder { color: var(--text-subtle); }
+
+    /* ACCORDION */
+    .accordion-group { margin-bottom: 0.25rem; }
+    .accordion-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0.75rem;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      color: var(--text-2);
+      font-family: var(--sans);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s var(--ease-out);
+      user-select: none;
+    }
+    .accordion-btn:hover { background: var(--surface-2); color: var(--text); }
+    .accordion-btn.open { background: var(--surface-2); color: var(--text); }
+    .btn-title-group { display: flex; align-items: center; gap: 0.6rem; }
+    .cat-icon-svg { color: var(--text-muted); flex-shrink: 0; transition: color 0.15s; }
+    .accordion-btn:hover .cat-icon-svg, .accordion-btn.open .cat-icon-svg { color: var(--accent); }
+    .chevron-svg { color: var(--text-subtle); transition: transform 0.2s var(--ease-out), color 0.15s; flex-shrink: 0; }
+    .accordion-btn.open .chevron-svg { transform: rotate(90deg); color: var(--text); }
+
+    .submenu {
+      display: none;
+      padding-left: 0.4rem;
+      margin-top: 0.15rem;
+      border-left: 1.5px solid var(--border);
+      margin-left: 1.25rem;
+    }
+    .submenu.show {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+      animation: subMenuSlide 0.18s var(--ease-out);
+    }
+    @keyframes subMenuSlide {
+      from { opacity: 0; transform: translateY(-3px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .submenu a {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.38rem 0.65rem;
+      font-size: 0.785rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      border-radius: var(--radius);
+      transition: all 0.15s var(--ease-out);
+      position: relative;
+    }
+    .submenu a:hover {
+      background: var(--surface-2);
+      color: var(--text);
+      transform: translateX(2px);
+    }
+    .submenu a.active {
+      background: var(--accent);
+      color: #ffffff !important;
+      font-weight: 500;
+      box-shadow: var(--shadow-sm);
+    }
+    .submenu a.active .num-tag {
+      background: rgba(255, 255, 255, 0.2);
+      color: #ffffff !important;
+    }
+    .num-tag {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      font-weight: 500;
+      color: var(--text-subtle);
+      background: var(--surface-2);
+      padding: 0.08rem 0.35rem;
+      border-radius: 3px;
+      min-width: 22px;
+      text-align: center;
+    }
+
+    /* MAIN CONTENT */
+    main {
+      flex: 1;
+      padding: 2.5rem 3.5rem 5rem;
+      max-width: 1100px;
+      animation: pageFade 0.25s var(--ease-out);
+    }
+    @keyframes pageFade {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+    .breadcrumb a { color: var(--text-muted); text-decoration: none; transition: color 0.15s; }
+    .breadcrumb a:hover { color: var(--text); }
+    .breadcrumb span.current { color: var(--text); font-weight: 500; }
+    .breadcrumb-sep { color: var(--text-subtle); font-size: 0.75rem; }
+
+    .header-box {
+      margin-bottom: 2.25rem;
+      padding-bottom: 1.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-box h1 {
+      font-size: 2.15rem;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      line-height: 1.25;
+      color: var(--text);
+      margin-bottom: 0.6rem;
+    }
+    .header-box p {
+      font-size: 1.02rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      max-width: 820px;
+    }
+
+    /* TYPOGRAPHY */
+    h2 {
+      font-size: 1.35rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin: 2.5rem 0 1rem;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    h3 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      letter-spacing: -0.015em;
+      margin: 1.5rem 0 0.65rem;
+      color: var(--text);
+    }
+    p { margin-bottom: 1rem; color: var(--text-2); font-size: 0.92rem; }
+
+    /* CARDS & GRIDS */
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.25rem; margin: 1.5rem 0; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; margin: 1.5rem 0; }
+    
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.35rem 1.5rem;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s var(--ease-out);
+    }
+    .card:hover {
+      border-color: var(--border-strong);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+    .card h3 { margin-top: 0; margin-bottom: 0.5rem; font-size: 0.98rem; }
+    .card p { font-size: 0.86rem; color: var(--text-muted); margin: 0; }
+
+    /* BADGES */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.72rem;
+      font-family: var(--mono);
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+    .badge-accent { background: var(--accent-bg); color: var(--accent); border: 1px solid var(--border); }
+    .badge-success { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
+    .badge-warning { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+    .badge-danger { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+    .badge-pk { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+    .badge-fk { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+
+    /* TABLES */
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1.25rem 0 2rem;
+      font-size: 0.85rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+    th {
+      text-align: left;
+      padding: 0.75rem 1rem;
+      background: var(--surface-2);
+      border-bottom: 1px solid var(--border);
+      font-size: 0.73rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+    td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--text-2);
+      transition: background 0.1s;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface-hover); }
+
+    /* CODE BLOCKS */
+    code {
+      font-family: var(--mono);
+      font-size: 0.84em;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      padding: 0.18rem 0.45rem;
+      border-radius: var(--radius-sm);
+      color: var(--text);
+    }
+    .code-container {
+      position: relative;
+      margin: 1.25rem 0 1.75rem;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+    }
+    .code-block {
+      background: #09090b;
+      color: #f8fafc;
+      padding: 1.35rem 1.5rem;
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      line-height: 1.65;
+      overflow-x: auto;
+      white-space: pre;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #f8fafc;
+      font-family: var(--sans);
+      font-size: 0.72rem;
+      font-weight: 500;
+      padding: 0.3rem 0.65rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.15s;
+    }
+    .copy-btn:hover { background: rgba(255, 255, 255, 0.2); }
+
+    /* ALERTS */
+    .alert {
+      padding: 1.1rem 1.35rem;
+      border-radius: var(--radius-lg);
+      margin: 1.5rem 0;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      border-left: 4px solid;
+      box-shadow: var(--shadow-sm);
+    }
+    .alert-info { background: #f0f9ff; border-color: #0284c7; color: #075985; }
+    .alert-warning { background: #fffbeb; border-color: #d97706; color: #92400e; }
+
+    @media (max-width: 960px) {
+      body { flex-direction: column; }
+      nav#sidebar { width: 100%; height: auto; position: static; }
+      main { padding: 1.75rem 1.25rem 4rem; }
+    }
+  </style>
+</head>
+<body>
+
+            <!-- ACCORDION SIDEBAR NAV -->
+    <!-- ACCORDION SIDEBAR NAV -->
+  <nav id="sidebar">
+    <div class="nav-header">
+      <div class="nav-logo-group">
+        <span class="nav-logo-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/></svg></span>
+        <span>CRM Docs</span>
+      </div>
+      <span class="version-tag">v1.0</span>
+    </div>
+    <div class="search-box">
+      <div class="search-input-wrap">
+        <svg class="search-icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" id="nav-search" placeholder="Buscar en documentación..." oninput="filterNav(this.value)">
+      </div>
+    </div>
+    <div id="nav-items" style="padding: 0.65rem 0.6rem;">
+      <div class="accordion-group">
+        <button class="accordion-btn" id="btn-cat-00" onclick="toggleCategory('cat-00')">
+          <span class="btn-title-group"><svg class="cat-icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg><span>00 - General & Inicio</span></span>
+          <svg class="chevron-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <div class="submenu" id="menu-cat-00">
+          <a href="../../index.html"><span class="num-tag">00</span>Portal Principal</a>
+          <a href="../../00-overview/index.html"><span class="num-tag">00</span>Visión General & Glosario</a>
+        </div>
+      </div>
+      <div class="accordion-group">
+        <button class="accordion-btn" id="btn-cat-01" onclick="toggleCategory('cat-01')">
+          <span class="btn-title-group"><svg class="cat-icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg><span>01 - Arquitectura</span></span>
+          <svg class="chevron-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <div class="submenu" id="menu-cat-01">
+          <a href="../../01-architecture/index.html"><span class="num-tag">01</span>Arquitectura Hexagonal & ADRs</a>
+        </div>
+      </div>
+      <div class="accordion-group">
+        <button class="accordion-btn open" id="btn-cat-02" onclick="toggleCategory('cat-02')">
+          <span class="btn-title-group"><svg class="cat-icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1.5"/><rect width="7" height="7" x="14" y="3" rx="1.5"/><rect width="7" height="7" x="14" y="14" rx="1.5"/><rect width="7" height="7" x="3" y="14" rx="1.5"/></svg><span>02 - Módulos del Sistema</span></span>
+          <svg class="chevron-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <div class="submenu show" id="menu-cat-02" data-auto-open="true">
+          <a href="../authentication/index.html"><span class="num-tag">02</span>Autenticación & JWT</a>
+          <a href="index.html" class="active"><span class="num-tag">02</span>Pre-Ventas & Leads</a>
+          <a href="../sales-orders/index.html"><span class="num-tag">02</span>Órdenes de Venta</a>
+          <a href="../backoffice-activations/index.html"><span class="num-tag">02</span>Backoffice & Activaciones</a>
+          <a href="../commissions/index.html"><span class="num-tag">02</span>Motor de Comisiones</a>
+          <a href="../supervisor-audit/index.html"><span class="num-tag">02</span>Auditoría & Supervisión</a>
+          <a href="../kb-incidents/index.html"><span class="num-tag">02</span>Mesa de Ayuda & KB</a>
+          <a href="../notifications/index.html"><span class="num-tag">02</span>Notificaciones SignalR</a>
+        </div>
+      </div>
+      <div class="accordion-group">
+        <button class="accordion-btn" id="btn-cat-03" onclick="toggleCategory('cat-03')">
+          <span class="btn-title-group"><svg class="cat-icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9v2a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V9"/><circle cx="6" cy="6" r="3"/><path d="M6 9v3"/></svg><span>03 - Flujos E2E</span></span>
+          <svg class="chevron-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <div class="submenu" id="menu-cat-03">
+          <a href="../../03-flows/index.html"><span class="num-tag">03</span>Flujo Comercial E2E</a>
+        </div>
+      </div>
+      <div class="accordion-group">
+        <button class="accordion-btn" id="btn-cat-04" onclick="toggleCategory('cat-04')">
+          <span class="btn-title-group"><svg class="cat-icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></svg><span>04 - Base de Datos</span></span>
+          <svg class="chevron-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <div class="submenu" id="menu-cat-04">
+          <a href="../../04-database/index.html"><span class="num-tag">04</span>Diccionario PostgreSQL 16</a>
+        </div>
+      </div>
+      <div class="accordion-group">
+        <button class="accordion-btn" id="btn-cat-05" onclick="toggleCategory('cat-05')">
+          <span class="btn-title-group"><svg class="cat-icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v8"/><path d="m4.93 10.93 4.24 4.24"/><path d="M2 12h8"/><path d="m4.93 13.07 4.24-4.24"/><circle cx="16" cy="16" r="6"/></svg><span>05 - Integraciones</span></span>
+          <svg class="chevron-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <div class="submenu" id="menu-cat-05">
+          <a href="../../05-integrations/index.html"><span class="num-tag">05</span>Integraciones (FDW/GLPI/SMTP)</a>
+        </div>
+      </div>
+      <div class="accordion-group">
+        <button class="accordion-btn" id="btn-cat-06" onclick="toggleCategory('cat-06')">
+          <span class="btn-title-group"><svg class="cat-icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="8" x="2" y="2" rx="2"/><rect width="20" height="8" x="2" y="14" rx="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/></svg><span>06 - Infraestructura</span></span>
+          <svg class="chevron-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <div class="submenu" id="menu-cat-06">
+          <a href="../../06-infrastructure/index.html"><span class="num-tag">06</span>Docker, NGINX & SSL</a>
+        </div>
+      </div>
+      <div class="accordion-group">
+        <button class="accordion-btn" id="btn-cat-07" onclick="toggleCategory('cat-07')">
+          <span class="btn-title-group"><svg class="cat-icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg><span>07 - Operaciones</span></span>
+          <svg class="chevron-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <div class="submenu" id="menu-cat-07">
+          <a href="../../07-operations/index.html"><span class="num-tag">07</span>Despliegue & Monitoreo</a>
+        </div>
+      </div>
+      <div class="accordion-group">
+        <button class="accordion-btn" id="btn-cat-08" onclick="toggleCategory('cat-08')">
+          <span class="btn-title-group"><svg class="cat-icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg><span>08 - Guías de Usuario</span></span>
+          <svg class="chevron-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <div class="submenu" id="menu-cat-08">
+          <a href="../../08-user-guides/asesor-guide.html"><span class="num-tag">08</span>Guía del Asesor 360°</a>
+          <a href="../../08-user-guides/supervisor-guide.html"><span class="num-tag">08</span>Guía del Supervisor</a>
+          <a href="../../08-user-guides/backoffice-guide.html"><span class="num-tag">08</span>Guía de Backoffice</a>
+        </div>
+      </div>
+      <div class="accordion-group">
+        <button class="accordion-btn" id="btn-cat-09" onclick="toggleCategory('cat-09')">
+          <span class="btn-title-group"><svg class="cat-icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg><span>09 - Visual, Diagramas & Mockups</span></span>
+          <svg class="chevron-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <div class="submenu" id="menu-cat-09">
+          <a href="../../09-visual-docs/diagrams/system-architecture-diagram.html"><span class="num-tag">09</span>Diagrama Arquitectura C4</a>
+          <a href="../../09-visual-docs/diagrams/database-er-diagram.html"><span class="num-tag">09</span>Diagrama ERD Base Datos</a>
+          <a href="../../09-visual-docs/diagrams/hexagonal-architecture-diagram.html"><span class="num-tag">09</span>Diagrama Hexagonal</a>
+          <a href="../../09-visual-docs/walkthroughs/asesor-sales-walkthrough.html"><span class="num-tag">09</span>Walkthrough Ciclo de Venta</a>
+          <a href="../../09-visual-docs/mockups/asesor-ui-mockups.html"><span class="num-tag">09</span>Mockups UI Asesor</a>
+          <a href="../../09-visual-docs/mockups/supervisor-ui-mockups.html"><span class="num-tag">09</span>Mockups UI Supervisor</a>
+          <a href="../../09-visual-docs/mockups/backoffice-ui-mockups.html"><span class="num-tag">09</span>Mockups UI Backoffice</a>
+        </div>
+      </div>
+      <div class="accordion-group">
+        <button class="accordion-btn" id="btn-cat-10" onclick="toggleCategory('cat-10')">
+          <span class="btn-title-group"><svg class="cat-icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>10 - Soporte & QA</span></span>
+          <svg class="chevron-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <div class="submenu" id="menu-cat-10">
+          <a href="../../10-knowledge-base/index.html"><span class="num-tag">10</span>10 - Knowledge Base</a>
+          <a href="../../11-incidents/index.html"><span class="num-tag">11</span>11 - Incidencias & Bugs</a>
+          <a href="../../12-security/index.html"><span class="num-tag">12</span>12 - Seguridad & RBAC</a>
+          <a href="../../13-testing/index.html"><span class="num-tag">13</span>13 - Testing & QA</a>
+        </div>
+      </div>
+      <div class="accordion-group">
+        <button class="accordion-btn" id="btn-cat-99" onclick="toggleCategory('cat-99')">
+          <span class="btn-title-group"><svg class="cat-icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg><span>99 - Referencia</span></span>
+          <svg class="chevron-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <div class="submenu" id="menu-cat-99">
+          <a href="../../14-changelog/index.html"><span class="num-tag">14</span>14 - Changelog v1.0.0</a>
+          <a href="../../99-reference/index.html"><span class="num-tag">99</span>99 - Referencia & cURL</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main>
+    <div class="breadcrumb">
+      <a href="../../index.html">docs</a> / <a href="../index.html">02-modules</a> / <span>presales-leads</span>
+    </div>
+
+    <div class="header-box">
+      <h1>Módulo de Pre-Ventas & Gestión de Leads</h1>
+      <p>Especificación técnica exhaustiva del ciclo de vida comercial: captura, validación algorítmica de identificación, detección de duplicidad temporal, cuestionarios dinámicos de elegibilidad y transición a órdenes de venta.</p>
+    </div>
+
+    <!-- 1. OBJETIVO Y RESPONSABILIDADES -->
+    <h2>1. Propósito & Responsabilidades de Dominio</h2>
+    <p style="margin-bottom: 1rem; color: var(--text-muted);">
+      El módulo <code>PreSales / Leads</code> constituye la puerta de entrada comercial para el Call Center. Gestiona el ciclo prospectivo completo, garantizando que ninguna venta se formalice sin antes cumplir los requisitos jurídicos (Cédula/DNI válida), técnicos (Cercanía a caja NAP) y comerciales (Cero duplicidad y no deudor en ERP legacy).
+    </p>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>Captura & Validación Inmediata</h3>
+        <p>Recepción de prospectos vía API REST o formulario UI (<code>Ctrl + Alt + N</code>). Ejecución en tiempo real del algoritmo Módulo 10 de dígito verificador y sanitización telefónica (10 dígitos exactos).</p>
+      </div>
+      <div class="card">
+        <h3>Motor Anti-Duplicados (Ventana 30 Días)</h3>
+        <p>Comprobación estricta de concurrencia en PostgreSQL: si la cédula o teléfono fueron ingresados en los últimos 30 días, el sistema enlaza el prospecto a la orden previa e inhabilita comisiones dobles.</p>
+      </div>
+      <div class="card">
+        <h3>Cuestionarios Dinámicos de Calificación</h3>
+        <p>Motor de evaluación basado en esquemas JSON polimórficos almacenados en <code>crm.leads.qualification_json</code> (JSONB) para validar factibilidad técnica y solvencia.</p>
+      </div>
+      <div class="card">
+        <h3>Asignación & Cron de Rebalanceo</h3>
+        <p>Asignación equitativa (Round-Robin) entre asesores comerciales con turno activo. Cron background que redistribuye prospectos sin gestión tras 60 minutos.</p>
+      </div>
+    </div>
+
+    <!-- 2. MAQUINA DE ESTADOS FORMAL -->
+    <h2>2. Máquina de Estados del Lead</h2>
+    <p style="margin-bottom: 0.75rem; color: var(--text-muted);">
+      Cada instancia de <code>Lead</code> en el dominio implementa una máquina de estados estricta. Cualquier intento de transición no permitida dispara una excepción <code>InvalidLeadStateTransitionException</code> (HTTP 422).
+    </p>
+
+    <div class="state-flow">
+      <div class="state-node" style="background:#e0f2fe; color:#0369a1;">New</div>
+      <div class="state-arrow">➔</div>
+      <div class="state-node" style="background:#fef3c7; color:#92400e;">InContact</div>
+      <div class="state-arrow">➔</div>
+      <div class="state-node" style="background:#dcfce7; color:#166534;">Qualified</div>
+      <div class="state-arrow">➔</div>
+      <div class="state-node" style="background:#18181b; color:#ffffff;">SalesOrderCreated</div>
+      <div class="state-arrow" style="margin-left:auto;">| Transición Terminal:</div>
+      <div class="state-node" style="background:#fee2e2; color:#991b1b;">Disqualified</div>
+      <div class="state-node" style="background:#f3e8ff; color:#6b21a8;">Duplicate</div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Estado Actual</th>
+          <th>Estado Siguiente</th>
+          <th>Evento / Comando Disparador</th>
+          <th>Regla de Validación de Dominio</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>New</code></td>
+          <td><code>InContact</code></td>
+          <td><code>StartContactCommand</code></td>
+          <td>El asesor asignado abre la ficha del lead en su interfaz.</td>
+        </tr>
+        <tr>
+          <td><code>InContact</code></td>
+          <td><code>Qualified</code></td>
+          <td><code>QualifyLeadCommand</code></td>
+          <td>Cuestionario técnico JSONB completado y validación FDW sin deuda impaga.</td>
+        </tr>
+        <tr>
+          <td><code>InContact</code></td>
+          <td><code>Disqualified</code></td>
+          <td><code>DisqualifyLeadCommand</code></td>
+          <td>Cliente rechaza la oferta, no tiene cobertura o registra deuda bloqueante en FDW.</td>
+        </tr>
+        <tr>
+          <td><code>Qualified</code></td>
+          <td><code>SalesOrderCreated</code></td>
+          <td><code>CreateSalesOrderFromLeadCommand</code></td>
+          <td>Se genera la orden formal en estado <code>PendingDocuments</code>. El lead se bloquea contra modificaciones.</td>
+        </tr>
+        <tr>
+          <td><code>New</code></td>
+          <td><code>Duplicate</code></td>
+          <td><code>CreateLeadCommand</code></td>
+          <td>Trigger automático si se detecta el mismo DNI/Teléfono registrado hace &lt; 30 días.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- 3. ALGORITMO MODULO 10 -->
+    <h2>3. Algoritmo de Validación: Dígito Verificador (Módulo 10)</h2>
+    <p style="margin-bottom: 0.75rem; color: var(--text-muted);">
+      Implementación en el Value Object <code>DniDocument.cs</code> en la capa de Dominio C#.
+    </p>
+
+    <div class="code-container">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar C#</button>
+      <div class="code-block">namespace CRM.Domain.ValueObjects;
+
+public sealed class DniDocument : ValueObject
+{
+    public string Value { get; }
+
+    private DniDocument(string value) => Value = value;
+
+    public static Result&lt;DniDocument&gt; Create(string rawDni)
+    {
+        if (string.IsNullOrWhiteSpace(rawDni))
+            return Result.Failure&lt;DniDocument&gt;("La cédula no puede estar vacía.");
+
+        var clean = rawDni.Trim().Replace("-", "");
+        if (clean.Length != 10 || !clean.All(char.IsDigit))
+            return Result.Failure&lt;DniDocument&gt;("La cédula debe contener exactamente 10 dígitos numéricos.");
+
+        int provincia = int.Parse(clean.Substring(0, 2));
+        if (provincia &lt; 1 || provincia &gt; 24)
+            return Result.Failure&lt;DniDocument&gt;("Código de provincia inválido.");
+
+        int tercerDigito = int.Parse(clean[2].ToString());
+        if (tercerDigito &gt;= 6)
+            return Result.Failure&lt;DniDocument&gt;("El tercer dígito de persona natural debe ser menor a 6.");
+
+        // Algoritmo Módulo 10 con coeficientes [2, 1, 2, 1, 2, 1, 2, 1, 2]
+        int[] coeficientes = { 2, 1, 2, 1, 2, 1, 2, 1, 2 };
+        int suma = 0;
+
+        for (int i = 0; i &lt; 9; i++)
+        {
+            int valor = int.Parse(clean[i].ToString()) * coeficientes[i];
+            suma += (valor &gt;= 10) ? (valor - 9) : valor;
+        }
+
+        int digitoVerificadorEsperado = (suma % 10 == 0) ? 0 : (10 - (suma % 10));
+        int digitoVerificadorReal = int.Parse(clean[9].ToString());
+
+        if (digitoVerificadorEsperado != digitoVerificadorReal)
+            return Result.Failure&lt;DniDocument&gt;("Dígito verificador de cédula incorrecto.");
+
+        return Result.Success(new DniDocument(clean));
+    }
+}</div>
+    </div>
+
+    <!-- 4. DETECCION ANTI-DUPLICADOS -->
+    <h2>4. Detección Anti-Duplicados: Query SQL & Regla de Negocio</h2>
+    <div class="alert alert-warning">
+      <strong>Regla Operativa:</strong> Si un prospecto con el mismo número de cédula o teléfono ingresa al sistema dentro de una ventana de 30 días continuos respecto a una orden en curso, la creación no genera un nuevo lead comisionable, sino que retorna código <code>HTTP 409 Conflict</code> enlazando la referencia original.
+    </div>
+
+    <div class="code-container">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar SQL</button>
+      <div class="code-block">-- Comprobación ejecutada por LeadRepository.cs antes de insertar
+SELECT 
+    l.id AS original_lead_id,
+    l.assigned_advisor_id,
+    l.status,
+    l.created_at,
+    u.username AS advisor_username
+FROM crm.leads l
+JOIN auth.users u ON u.id = l.assigned_advisor_id
+WHERE (l.document_number = @DocumentNumber OR l.phone = @PhoneNumber)
+  AND l.created_at >= NOW() - INTERVAL '30 days'
+  AND l.status NOT IN ('Disqualified')
+LIMIT 1;</div>
+    </div>
+
+    <!-- 5. ENDPOINTS Y PAYLOADS COMPLETOS -->
+    <h2>5. Catálogo Completo de Endpoints API</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Método</th>
+          <th>Ruta Endpoint</th>
+          <th>Descripción</th>
+          <th>Roles Autorizados</th>
+          <th>Códigos HTTP</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="badge badge-accent">GET</span></td>
+          <td><code>/api/v1/presales/leads</code></td>
+          <td>Listado paginado de leads asignados con filtros de estado y rango de fechas.</td>
+          <td>Asesor, Supervisor, Admin</td>
+          <td>200 OK, 401 Unauthorized</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-accent">POST</span></td>
+          <td><code>/api/v1/presales/leads</code></td>
+          <td>Crea un nuevo prospecto. Aplica módulo 10 y validación anti-duplicados.</td>
+          <td>Asesor, Admin</td>
+          <td>201 Created, 400 Bad Request, 409 Conflict</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-accent">GET</span></td>
+          <td><code>/api/v1/presales/leads/{id}</code></td>
+          <td>Retorna la ficha técnica detallada del lead, cuestionario y trazabilidad.</td>
+          <td>Asesor Asignado, Supervisor</td>
+          <td>200 OK, 404 Not Found</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-accent">POST</span></td>
+          <td><code>/api/v1/presales/leads/{id}/qualify</code></td>
+          <td>Guarda las respuestas del cuestionario técnico y califica el lead.</td>
+          <td>Asesor Asignado</td>
+          <td>200 OK, 400 Bad Request, 403 Forbidden</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-accent">POST</span></td>
+          <td><code>/api/v1/presales/leads/{id}/disqualify</code></td>
+          <td>Descalifica el lead indicando motivo tipificado en el catálogo.</td>
+          <td>Asesor Asignado, Supervisor</td>
+          <td>200 OK, 400 Bad Request</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- 6. ESQUEMAS JSON REQUEST & RESPONSE -->
+    <h2>6. Contratos de Datos JSON</h2>
+
+    <h3>6.1 Registro de Lead — Request (`POST /api/v1/presales/leads`)</h3>
+    <div class="code-container">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar JSON</button>
+      <div class="code-block">{
+  "documentNumber": "0928374651",
+  "documentType": "DNI",
+  "firstName": "María José",
+  "lastName": "Fernández Castro",
+  "phone": "0991234567",
+  "email": "maria.fernandez@example.com",
+  "city": "Guayaquil",
+  "address": "Av. 9 de Octubre 412 y Chile, Edificio Cosmos, Piso 4",
+  "offeredPlanId": "PLAN-FIBRA-300M",
+  "campaignSource": "Inbound_Call_PromoAgosto"
+}</div>
+    </div>
+
+    <h3>6.2 Registro Exitoso — Response (201 Created)</h3>
+    <div class="code-container">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar JSON</button>
+      <div class="code-block">{
+  "success": true,
+  "data": {
+    "leadId": "f47ac10b-58cc-4372-a567-0e02b2c3d4e5",
+    "documentNumber": "0928374651",
+    "fullName": "María José Fernández Castro",
+    "status": "New",
+    "assignedAdvisor": {
+      "id": "b8a9c102-4f3e-4d1a-8c9b-0a1b2c3d4e5f",
+      "username": "asesor.carlos",
+      "assignedAt": "2026-08-10T11:18:00Z"
+    },
+    "createdAt": "2026-08-10T11:18:00Z"
+  },
+  "errors": []
+}</div>
+    </div>
+
+    <h3>6.3 Conflicto de Duplicidad — Response (409 Conflict)</h3>
+    <div class="code-container">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar JSON</button>
+      <div class="code-block">{
+  "success": false,
+  "errorCode": "LEAD_DUPLICATE_WITHIN_WINDOW",
+  "message": "El documento 0928374651 ya fue registrado en los últimos 30 días.",
+  "details": {
+    "originalLeadId": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
+    "originalCreatedAt": "2026-08-02T14:22:10Z",
+    "currentStatus": "PendingAudit",
+    "assignedAdvisor": "asesor.roberto"
+  }
+}</div>
+    </div>
+
+    <h3>6.4 Calificación Dinámica de Lead — Request (`POST /api/v1/presales/leads/{id}/qualify`)</h3>
+    <div class="code-container">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar JSON</button>
+      <div class="code-block">{
+  "napBoxId": "NAP-GYE-CENTRO-042",
+  "napDistanceMeters": 145,
+  "hasAvailablePorts": true,
+  "legacyDebtChecked": true,
+  "legacyHasActiveDebt": false,
+  "creditScoreBureau": "A1",
+  "requiresDeposit": false,
+  "qualificationAnswers": {
+    "residenceType": "Propia",
+    "currentIsp": "Competidor_X",
+    "preferredInstallationSlot": "Morning_09_12"
+  }
+}</div>
+    </div>
+
+    <!-- 7. ESQUEMA DDL COMPLETO EN POSTGRESQL -->
+    <h2>7. Definición DDL en Base de Datos (PostgreSQL 16)</h2>
+    <div class="code-container">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar SQL</button>
+      <div class="code-block">CREATE TABLE crm.leads (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    document_number VARCHAR(20) NOT NULL,
+    document_type VARCHAR(10) NOT NULL DEFAULT 'DNI',
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    phone VARCHAR(20) NOT NULL,
+    email VARCHAR(150),
+    city VARCHAR(100) NOT NULL,
+    address TEXT NOT NULL,
+    offered_plan_id VARCHAR(50),
+    campaign_source VARCHAR(100),
+    status VARCHAR(50) NOT NULL DEFAULT 'New',
+    assigned_advisor_id UUID REFERENCES auth.users(id),
+    qualification_json JSONB,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CONSTRAINT chk_lead_status CHECK (
+        status IN ('New', 'InContact', 'Qualified', 'Disqualified', 'SalesOrderCreated', 'Duplicate')
+    )
+);
+
+-- Índices B-Tree para optimización de consultas de alta concurrencia
+CREATE INDEX idx_leads_doc_created ON crm.leads(document_number, created_at DESC);
+CREATE INDEX idx_leads_phone_created ON crm.leads(phone, created_at DESC);
+CREATE INDEX idx_leads_advisor_status ON crm.leads(assigned_advisor_id, status);
+CREATE INDEX idx_leads_qualification_gin ON crm.leads USING GIN (qualification_json);</div>
+    </div>
+
+    <!-- 8. COMANDO CQRS IMPLEMENTATION -->
+    <h2>8. Orquestación CQRS (MediatR Command Handler en C#)</h2>
+    <div class="code-container">
+      <button class="copy-btn" onclick="copyCode(this)">Copiar C#</button>
+      <div class="code-block">public sealed class CreateLeadCommandHandler : IRequestHandler&lt;CreateLeadCommand, Result&lt;LeadResponseDto&gt;&gt;
+{
+    private readonly ILeadRepository _leadRepository;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly ICurrentUserService _currentUser;
+    private readonly ILogger&lt;CreateLeadCommandHandler&gt; _logger;
+
+    public CreateLeadCommandHandler(
+        ILeadRepository leadRepository,
+        IUnitOfWork unitOfWork,
+        ICurrentUserService currentUser,
+        ILogger&lt;CreateLeadCommandHandler&gt; logger)
+    {
+        _leadRepository = leadRepository;
+        _unitOfWork = unitOfWork;
+        _currentUser = currentUser;
+        _logger = logger;
+    }
+
+    public async Task&lt;Result&lt;LeadResponseDto&gt;&gt; Handle(CreateLeadCommand request, CancellationToken ct)
+    {
+        // 1. Validar Value Object DniDocument (Módulo 10)
+        var dniResult = DniDocument.Create(request.DocumentNumber);
+        if (dniResult.IsFailure)
+            return Result.Failure&lt;LeadResponseDto&gt;(dniResult.Error);
+
+        // 2. Comprobar ventana anti-duplicados (30 días)
+        var duplicate = await _leadRepository.FindDuplicateAsync(dniResult.Value.Value, request.Phone, ct);
+        if (duplicate != null)
+        {
+            _logger.LogWarning("Lead duplicado detectado para DNI {Dni}. Lead Original: {Id}", request.DocumentNumber, duplicate.Id);
+            return Result.Failure&lt;LeadResponseDto&gt;(LeadErrors.DuplicateWithinWindow(duplicate.Id, duplicate.CreatedAt));
+        }
+
+        // 3. Crear Entidad de Dominio
+        var lead = Lead.Create(
+            dni: dniResult.Value,
+            firstName: request.FirstName,
+            lastName: request.LastName,
+            phone: request.Phone,
+            email: request.Email,
+            city: request.City,
+            address: request.Address,
+            offeredPlanId: request.OfferedPlanId,
+            campaignSource: request.CampaignSource,
+            assignedAdvisorId: _currentUser.UserId
+        );
+
+        await _leadRepository.AddAsync(lead, ct);
+        await _unitOfWork.SaveChangesAsync(ct);
+
+        _logger.LogInformation("Lead {Id} creado exitosamente por asesor {User}", lead.Id, _currentUser.Username);
+        return Result.Success(lead.ToDto());
+    }
+}</div>
+    </div>
+  </main>
+
+  <script>
+    function copyCode(btn) {
+      const block = btn.parentElement.querySelector('.code-block');
+      if (block) {
+        navigator.clipboard.writeText(block.textContent.trim()).then(() => {
+          const original = btn.textContent;
+          btn.textContent = '¡Copiado!';
+          setTimeout(() => btn.textContent = original, 2000);
+        });
+      }
+    }
+  </script>
+<script>
+    function toggleCategory(catId) {
+      const btn = document.getElementById('btn-' + catId);
+      const menu = document.getElementById('menu-' + catId);
+      if (!btn || !menu) return;
+      const isOpen = menu.classList.contains('show');
+      if (isOpen) {
+        menu.classList.remove('show');
+        btn.classList.remove('open');
+      } else {
+        menu.classList.add('show');
+        btn.classList.add('open');
+      }
+    }
+
+    function filterNav(val) {
+      const q = val.toLowerCase().trim();
+      if (!q) {
+        document.querySelectorAll('.submenu').forEach(m => {
+          if (!m.dataset.autoOpen) {
+            m.classList.remove('show');
+            const btn = document.getElementById('btn-' + m.id.replace('menu-', ''));
+            if (btn) btn.classList.remove('open');
+          } else {
+            m.classList.add('show');
+            const btn = document.getElementById('btn-' + m.id.replace('menu-', ''));
+            if (btn) btn.classList.add('open');
+          }
+          m.querySelectorAll('a').forEach(a => a.style.display = 'flex');
+        });
+        document.querySelectorAll('.accordion-group').forEach(g => g.style.display = 'block');
+        return;
+      }
+
+      document.querySelectorAll('.accordion-group').forEach(group => {
+        let hasMatch = false;
+        group.querySelectorAll('.submenu a').forEach(a => {
+          const match = a.textContent.toLowerCase().includes(q);
+          a.style.display = match ? 'flex' : 'none';
+          if (match) hasMatch = true;
+        });
+        const menu = group.querySelector('.submenu');
+        const btn = group.querySelector('.accordion-btn');
+        if (hasMatch) {
+          menu.classList.add('show');
+          btn.classList.add('open');
+          group.style.display = 'block';
+        } else {
+          group.style.display = 'none';
+        }
+      });
+    }
+</script>
+</body>
+</html>

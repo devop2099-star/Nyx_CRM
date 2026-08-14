@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diagrama de Arquitectura del Sistema C4 — CRM Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #fafafa;
+      --surface: #ffffff;
+      --surface-2: #f4f4f5;
+      --border: #e4e4e7;
+      --border-strong: #d4d4d8;
+      --text: #18181b;
+      --text-muted: #71717a;
+      --accent: #18181b;
+      --accent-bg: #f4f4f5;
+      --nav-w: 270px;
+      --mono: 'JetBrains Mono', monospace;
+      --radius: 4px;
+      --radius-lg: 6px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; display: flex; min-height: 100vh; }
+
+    nav#sidebar { width: var(--nav-w); min-width: var(--nav-w); background: var(--surface); border-right: 1px solid var(--border); height: 100vh; position: sticky; top: 0; overflow-y: auto; display: flex; flex-direction: column; padding-bottom: 2rem; z-index: 10; }
+    .nav-header { padding: 1.25rem 1rem 0.75rem; border-bottom: 1px solid var(--border); font-weight: 600; font-size: 0.88rem; display: flex; align-items: center; gap: 0.5rem; }
+    .nav-header span { background: var(--accent-bg); color: var(--accent); font-family: var(--mono); font-size: 0.75rem; padding: 0.15rem 0.45rem; border-radius: var(--radius); }
+    .search-box { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+    .search-box input { width: 100%; padding: 0.45rem 0.65rem; border: 1px solid var(--border); border-radius: var(--radius); font-size: 0.8rem; background: var(--bg); color: var(--text); outline: none; }
+
+    main { flex: 1; padding: 2.5rem 3rem 5rem; max-width: 1250px; position: relative; }
+    .breadcrumb { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.25rem; }
+    .breadcrumb a { color: var(--text); text-decoration: none; font-weight: 500; }
+    .header-box { margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+    .header-box h1 { font-size: 2rem; font-weight: 500; letter-spacing: -0.03em; margin-bottom: 0.5rem; }
+    .header-box p { font-size: 1rem; color: var(--text-muted); }
+
+    .viewer-container {
+      display: grid;
+      grid-template-columns: 1fr 390px;
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+    @media (max-width: 1050px) {
+      .viewer-container { grid-template-columns: 1fr; }
+    }
+
+    .viewer-card {
+      position: relative;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      height: 660px;
+      display: flex;
+      flex-direction: column;
+    }
+    .viewer-toolbar {
+      padding: 0.6rem 0.85rem;
+      background: var(--surface-2);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      z-index: 5;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .tool-group { display: flex; gap: 0.4rem; align-items: center; }
+    .tool-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.3rem 0.65rem;
+      font-size: 0.8rem;
+      font-family: var(--mono);
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: background 0.15s;
+      user-select: none;
+    }
+    .tool-btn:hover { background: var(--surface-2); }
+    .tool-search {
+      padding: 0.35rem 0.65rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.78rem;
+      outline: none;
+      width: 190px;
+      background: var(--surface);
+    }
+
+    .diagram-viewport {
+      flex: 1;
+      overflow: hidden;
+      cursor: grab;
+      position: relative;
+      background: radial-gradient(circle, #e4e4e7 1px, transparent 1px);
+      background-size: 20px 20px;
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+    }
+    .diagram-viewport.is-dragging { cursor: grabbing !important; }
+
+    .svg-canvas {
+      width: 100%;
+      height: 100%;
+      transform-origin: 0 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .svg-canvas * {
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+    }
+
+    .node-group { cursor: pointer; }
+    .node-bg { fill: var(--surface); stroke: var(--border-strong); stroke-width: 1.5; rx: 6; transition: stroke 0.15s, fill 0.15s; }
+    .node-group:hover .node-bg, .node-group.selected .node-bg { stroke: #18181b; stroke-width: 2.2; fill: #f8fafc; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.06)); }
+    .node-group.dimmed { opacity: 0.25; }
+
+    .node-header { fill: var(--text); font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; pointer-events: none; }
+    .node-sub { fill: var(--text-muted); font-family: var(--mono); font-size: 10px; pointer-events: none; }
+    .node-desc { fill: var(--text); font-family: 'Inter', sans-serif; font-size: 11px; pointer-events: none; }
+    .node-btn { fill: #0284c7; font-family: var(--mono); font-size: 10px; font-weight: 600; pointer-events: none; }
+
+    .boundary-rect { fill: rgba(244, 244, 245, 0.4); stroke: var(--border); stroke-width: 1.5; stroke-dasharray: 6 4; rx: 8; pointer-events: none; }
+    .boundary-title { fill: var(--text-muted); font-family: var(--mono); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; pointer-events: none; }
+
+    .conn-path { stroke: #a1a1aa; stroke-width: 1.5; fill: none; transition: stroke 0.2s; pointer-events: none; }
+    .conn-path.highlight { stroke: #18181b; stroke-width: 2.5; }
+
+    .inspector-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      height: 660px;
+      overflow-y: auto;
+    }
+    .inspector-header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border); margin-bottom: 1rem; }
+    .inspector-title { font-size: 1.05rem; font-weight: 600; }
+    .status-badge { font-family: var(--mono); font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: var(--radius); background: #dcfce7; color: #166534; }
+    .spec-item { margin-bottom: 0.85rem; }
+    .spec-label { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; margin-bottom: 0.2rem; }
+    .spec-val { font-size: 0.84rem; color: var(--text); user-select: text; }
+    .code-box { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.65rem; font-family: var(--mono); font-size: 0.74rem; overflow-x: auto; white-space: pre-wrap; color: #09090b; margin-top: 0.25rem; user-select: text; }
+    .inspector-btn { margin-top: auto; padding: 0.6rem; background: var(--accent); color: #fff; border: none; border-radius: var(--radius); font-size: 0.82rem; font-weight: 500; cursor: pointer; text-decoration: none; display: block; text-align: center; }
+    .inspector-btn:hover { background: #27272a; }
+
+    @media (max-width: 900px) {
+      body { flex-direction: column; }
+      nav#sidebar { width: 100%; height: auto; position: static; }
+      main { padding: 1.5rem; }
+    }
+  
+    /* ACCORDION SIDEBAR STYLES */
+    .accordion-group { margin-bottom: 0.35rem; }
+    .accordion-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0.85rem;
+      background: var(--surface);
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      color: var(--text);
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .accordion-btn:hover { background: var(--surface-2); }
+    .accordion-btn.open { background: var(--surface-2); border-color: var(--border); }
+    .accordion-btn .chevron {
+      font-size: 0.65rem;
+      transition: transform 0.2s ease;
+      color: var(--text-muted);
+    }
+    .accordion-btn.open .chevron { transform: rotate(90deg); }
+    .submenu {
+      display: none;
+      padding-left: 0.5rem;
+      margin-top: 0.2rem;
+      border-left: 2px solid var(--border);
+      margin-left: 0.85rem;
+    }
+    .submenu.show { display: flex; flex-direction: column; gap: 0.15rem; }
+    .submenu a {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.35rem 0.6rem;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      border-radius: var(--radius);
+      transition: background 0.15s, color 0.15s;
+    }
+    .submenu a:hover { background: var(--surface-2); color: var(--text); }
+    .submenu a.active {
+      background: var(--accent);
+      color: #ffffff !important;
+      font-weight: 500;
+    }
+    .submenu a.active .num { color: #d4d4d8 !important; }
+
+  </style>
+</head>
+<body>
+
+                <!-- ACCORDION SIDEBAR NAV -->
+    <!-- ACCORDION SIDEBAR NAV -->
+  <nav id="sidebar">
+    <div class="nav-header">
+      <div class="nav-logo-group">
+        <span class="nav-logo-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/></svg></span>
+        <span>CRM Docs</span>
+      </div>
+      <span class="version-tag">v1.0</span>
+    </div>
+    <div class="search-box">
+      <div class="search-input-wrap">
+        <svg class="search-icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" id="nav-search" placeholder="Buscar en documentación..." oninput="filterNav(this.value)">
+      </div>
+    </div>
+    <div id="nav-items" style="padding: 0.65rem 0.6rem;">
+      <div class="accordion-group">
+        <button class="accordion-btn" id="btn-cat-00" onclick="toggleCategory('cat-00')">
+          <span class="btn-title-group"><svg class="cat-icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg><span>00 - General & Inicio</span></span>
+          <svg class="chevron-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <div class="submenu" id="menu-cat-00">
+          <a href="../../index.html"><span class="num-tag">00</span>Portal Principal</a>
+          <a href="../../00-overview/index.html"><span class="num-tag">00</span>Visión General & Glosario</a>
+        </div>
+      </div>
+      <div class="accordion-group">
+        <button class="accordion-btn" id="btn-cat-01" onclick="toggleCategory('cat-01')">
+          <span class="btn-title-group"><svg class="cat-icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg><span>01 - Arquitectura</span></span>
+          <svg class="chevron-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <div class="submenu" id="menu-cat-01">
+          <a href="../../01-architecture/index.html"><span class="num-tag">01</span>Arquitectura Hexagonal & ADRs</a>
+        </div>
+      </div>
+      <div class="accordion-group">
+        <button class="accordion-btn" id="btn-cat-02" onclick="toggleCategory('cat-02')">
+          <span class="btn-title-group"><svg class="cat-icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1.5"/><rect width="7" height="7" x="14" y="3" rx="1.5"/><rect width="7" height="7" x="14" y="14" rx="1.5"/><rect width="7" height="7" x="3" y="14" rx="1.5"/></svg><span>02 - Módulos del Sistema</span></span>
+          <svg class="chevron-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <div class="submenu" id="menu-cat-02">
+          <a href="../../02-modules/authentication/index.html"><span class="num-tag">02</span>Autenticación & JWT</a>
+          <a href="../../02-modules/presales-leads/index.html"><span class="num-tag">02</span>Pre-Ventas & Leads</a>
+          <a href="../../02-modules/sales-orders/index.html"><span class="num-tag">02</span>Órdenes de Venta</a>
+          <a href="../../02-modules/backoffice-activations/index.html"><span class="num-tag">02</span>Backoffice & Activaciones</a>
+          <a href="../../02-modules/commissions/index.html"><span class="num-tag">02</span>Motor de Comisiones</a>
+          <a href="../../02-modules/supervisor-audit/index.html"><span class="num-tag">02</span>Auditoría & Supervisión</a>
+          <a href="../../02-modules/kb-incidents/index.html"><span class="num-tag">02</span>Mesa de Ayuda & KB</a>
+          <a href="../../02-modules/notifications/index.html"><span class="num-tag">02</span>Notificaciones SignalR</a>
+        </div>
+      </div>
+      <div class="accordion-group">
+        <button class="accordion-btn" id="btn-cat-03" onclick="toggleCategory('cat-03')">
+          <span class="btn-title-group"><svg class="cat-icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9v2a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V9"/><circle cx="6" cy="6" r="3"/><path d="M6 9v3"/></svg><span>03 - Flujos E2E</span></span>
+          <svg class="chevron-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <div class="submenu" id="menu-cat-03">
+          <a href="../../03-flows/index.html"><span class="num-tag">03</span>Flujo Comercial E2E</a>
+        </div>
+      </div>
+      <div class="accordion-group">
+        <button class="accordion-btn" id="btn-cat-04" onclick="toggleCategory('cat-04')">
+          <span class="btn-title-group"><svg class="cat-icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></svg><span>04 - Base de Datos</span></span>
+          <svg class="chevron-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <div class="submenu" id="menu-cat-04">
+          <a href="../../04-database/index.html"><span class="num-tag">04</span>Diccionario PostgreSQL 16</a>
+        </div>
+      </div>
+      <div class="accordion-group">
+        <button class="accordion-btn" id="btn-cat-05" onclick="toggleCategory('cat-05')">
+          <span class="btn-title-group"><svg class="cat-icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v8"/><path d="m4.93 10.93 4.24 4.24"/><path d="M2 12h8"/><path d="m4.93 13.07 4.24-4.24"/><circle cx="16" cy="16" r="6"/></svg><span>05 - Integraciones</span></span>
+          <svg class="chevron-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <div class="submenu" id="menu-cat-05">
+          <a href="../../05-integrations/index.html"><span class="num-tag">05</span>Integraciones (FDW/GLPI/SMTP)</a>
+        </div>
+      </div>
+      <div class="accordion-group">
+        <button class="accordion-btn" id="btn-cat-06" onclick="toggleCategory('cat-06')">
+          <span class="btn-title-group"><svg class="cat-icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="8" x="2" y="2" rx="2"/><rect width="20" height="8" x="2" y="14" rx="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/></svg><span>06 - Infraestructura</span></span>
+          <svg class="chevron-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <div class="submenu" id="menu-cat-06">
+          <a href="../../06-infrastructure/index.html"><span class="num-tag">06</span>Docker, NGINX & SSL</a>
+        </div>
+      </div>
+      <div class="accordion-group">
+        <button class="accordion-btn" id="btn-cat-07" onclick="toggleCategory('cat-07')">
+          <span class="btn-title-group"><svg class="cat-icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg><span>07 - Operaciones</span></span>
+          <svg class="chevron-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <div class="submenu" id="menu-cat-07">
+          <a href="../../07-operations/index.html"><span class="num-tag">07</span>Despliegue & Monitoreo</a>
+        </div>
+      </div>
+      <div class="accordion-group">
+        <button class="accordion-btn" id="btn-cat-08" onclick="toggleCategory('cat-08')">
+          <span class="btn-title-group"><svg class="cat-icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg><span>08 - Guías de Usuario</span></span>
+          <svg class="chevron-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <div class="submenu" id="menu-cat-08">
+          <a href="../../08-user-guides/asesor-guide.html"><span class="num-tag">08</span>Guía del Asesor 360°</a>
+          <a href="../../08-user-guides/supervisor-guide.html"><span class="num-tag">08</span>Guía del Supervisor</a>
+          <a href="../../08-user-guides/backoffice-guide.html"><span class="num-tag">08</span>Guía de Backoffice</a>
+        </div>
+      </div>
+      <div class="accordion-group">
+        <button class="accordion-btn open" id="btn-cat-09" onclick="toggleCategory('cat-09')">
+          <span class="btn-title-group"><svg class="cat-icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg><span>09 - Visual, Diagramas & Mockups</span></span>
+          <svg class="chevron-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <div class="submenu show" id="menu-cat-09" data-auto-open="true">
+          <a href="system-architecture-diagram.html" class="active"><span class="num-tag">09</span>Diagrama Arquitectura C4</a>
+          <a href="database-er-diagram.html"><span class="num-tag">09</span>Diagrama ERD Base Datos</a>
+          <a href="hexagonal-architecture-diagram.html"><span class="num-tag">09</span>Diagrama Hexagonal</a>
+          <a href="../walkthroughs/asesor-sales-walkthrough.html"><span class="num-tag">09</span>Walkthrough Ciclo de Venta</a>
+          <a href="../mockups/asesor-ui-mockups.html"><span class="num-tag">09</span>Mockups UI Asesor</a>
+          <a href="../mockups/supervisor-ui-mockups.html"><span class="num-tag">09</span>Mockups UI Supervisor</a>
+          <a href="../mockups/backoffice-ui-mockups.html"><span class="num-tag">09</span>Mockups UI Backoffice</a>
+        </div>
+      </div>
+      <div class="accordion-group">
+        <button class="accordion-btn" id="btn-cat-10" onclick="toggleCategory('cat-10')">
+          <span class="btn-title-group"><svg class="cat-icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>10 - Soporte & QA</span></span>
+          <svg class="chevron-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <div class="submenu" id="menu-cat-10">
+          <a href="../../10-knowledge-base/index.html"><span class="num-tag">10</span>10 - Knowledge Base</a>
+          <a href="../../11-incidents/index.html"><span class="num-tag">11</span>11 - Incidencias & Bugs</a>
+          <a href="../../12-security/index.html"><span class="num-tag">12</span>12 - Seguridad & RBAC</a>
+          <a href="../../13-testing/index.html"><span class="num-tag">13</span>13 - Testing & QA</a>
+        </div>
+      </div>
+      <div class="accordion-group">
+        <button class="accordion-btn" id="btn-cat-99" onclick="toggleCategory('cat-99')">
+          <span class="btn-title-group"><svg class="cat-icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg><span>99 - Referencia</span></span>
+          <svg class="chevron-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <div class="submenu" id="menu-cat-99">
+          <a href="../../14-changelog/index.html"><span class="num-tag">14</span>14 - Changelog v1.0.0</a>
+          <a href="../../99-reference/index.html"><span class="num-tag">99</span>99 - Referencia & cURL</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main>
+    <div class="breadcrumb">
+      <a href="../../index.html">docs</a> / <a href="../README.md">09-visual-docs</a> / <span>system-architecture-diagram</span>
+    </div>
+
+    <div class="header-box">
+      <h1>Diagrama de Arquitectura del Sistema C4 & Redes</h1>
+      <p>Haz clic sobre cualquier contenedor o componente del diagrama para inspeccionar su ficha técnica, puertos, configuración y código fuente.</p>
+    </div>
+
+    <div class="viewer-container">
+      <div class="viewer-card">
+        <div class="viewer-toolbar">
+          <div class="tool-group">
+            <button class="tool-btn" onclick="zoomBy(1.2)" title="Acercar">＋</button>
+            <button class="tool-btn" onclick="zoomBy(0.833)" title="Alejar">－</button>
+            <button class="tool-btn" onclick="resetZoom()" title="Restablecer">Reset</button>
+          </div>
+          <input type="text" class="tool-search" placeholder="Buscar componente..." oninput="searchDiagram(this.value)">
+        </div>
+
+        <div class="diagram-viewport" id="viewport">
+          <svg class="svg-canvas" id="svgCanvas" viewBox="0 0 1000 680" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#a1a1aa" />
+              </marker>
+            </defs>
+
+            <!-- DOCKER BOUNDARY -->
+            <rect x="250" y="30" width="460" height="620" class="boundary-rect" />
+            <text x="270" y="60" class="boundary-title">Red Interna Docker (crm_network)</text>
+
+            <!-- EXTERNAL BOUNDARY -->
+            <rect x="740" y="220" width="240" height="430" class="boundary-rect" />
+            <text x="760" y="245" class="boundary-title">Servicios Externos (SaaS / Red)</text>
+
+            <!-- NODE: USERS -->
+            <g class="node-group" id="node-users" transform="translate(30, 90)" onclick="selectNode('users')">
+              <rect class="node-bg" width="180" height="100" />
+              <text x="15" y="30" class="node-header">Usuarios / Roles</text>
+              <text x="15" y="48" class="node-sub">HTTPS / TLS 1.3</text>
+              <text x="15" y="68" class="node-desc">Asesor, Supervisor, BO</text>
+              <text x="15" y="88" class="node-btn">Inspeccionar →</text>
+            </g>
+
+            <!-- NODE: NGINX -->
+            <g class="node-group" id="node-nginx" transform="translate(280, 90)" onclick="selectNode('nginx')">
+              <rect class="node-bg" width="190" height="100" />
+              <text x="15" y="30" class="node-header">NGINX Reverse Proxy</text>
+              <text x="15" y="48" class="node-sub">Container: crm_nginx</text>
+              <text x="15" y="68" class="node-desc">Terminación SSL (443)</text>
+              <text x="15" y="88" class="node-btn">Inspeccionar →</text>
+            </g>
+
+            <!-- NODE: FRONTEND -->
+            <g class="node-group" id="node-web" transform="translate(500, 90)" onclick="selectNode('web')">
+              <rect class="node-bg" width="190" height="100" />
+              <text x="15" y="30" class="node-header">CRM.WebFrontend (Blazor)</text>
+              <text x="15" y="48" class="node-sub">Blazor WASM / .NET 8</text>
+              <text x="15" y="68" class="node-desc">Port: 8080 (Internal)</text>
+              <text x="15" y="88" class="node-btn">Inspeccionar →</text>
+            </g>
+
+            <!-- NODE: API HUB -->
+            <g class="node-group selected" id="node-api" transform="translate(280, 270)" onclick="selectNode('api')">
+              <rect class="node-bg" width="410" height="130" style="stroke-width:2.2" />
+              <text x="20" y="34" class="node-header" style="font-size:14px">CRM.ApiHub (.NET 8) (.NET 8 Web API)</text>
+              <text x="20" y="56" class="node-sub">Container: crm_api | Kestrel Server (Port: 5000)</text>
+              <text x="20" y="78" class="node-desc">Arquitectura Hexagonal: Domain, Application, Infrastructure, Presentation</text>
+              <text x="20" y="98" class="node-sub">• JWT HS256 Authentication • SignalR WebSockets Hub • Polly Retries</text>
+              <text x="20" y="118" class="node-btn">Inspeccionar →</text>
+            </g>
+
+            <!-- NODE: POSTGRESQL -->
+            <g class="node-group" id="node-db" transform="translate(280, 480)" onclick="selectNode('db')">
+              <rect class="node-bg" width="190" height="120" />
+              <text x="15" y="30" class="node-header">PostgreSQL 16 DB</text>
+              <text x="15" y="48" class="node-sub">Container: crm_db</text>
+              <text x="15" y="68" class="node-desc">Esquemas: auth, crm</text>
+              <text x="15" y="86" class="node-sub">Port: 5432 / FDW Enlace</text>
+              <text x="15" y="106" class="node-btn">Inspeccionar →</text>
+            </g>
+
+            <!-- NODE: REDIS -->
+            <g class="node-group" id="node-redis" transform="translate(500, 480)" onclick="selectNode('redis')">
+              <rect class="node-bg" width="190" height="120" />
+              <text x="15" y="30" class="node-header">Redis 7 Cache</text>
+              <text x="15" y="48" class="node-sub">Container: crm_redis</text>
+              <text x="15" y="68" class="node-desc">Caché distribuida y</text>
+              <text x="15" y="86" class="node-desc">blacklist de tokens</text>
+              <text x="15" y="106" class="node-btn">Inspeccionar →</text>
+            </g>
+
+            <!-- NODE: FDW LEGACY -->
+            <g class="node-group" id="node-fdw" transform="translate(30, 480)" onclick="selectNode('fdw')">
+              <rect class="node-bg" width="180" height="120" />
+              <text x="15" y="30" class="node-header">Servidor Legacy ERP (FDW)</text>
+              <text x="15" y="48" class="node-sub">Remote Postgres Host</text>
+              <text x="15" y="68" class="node-desc">Consulta de clientes y</text>
+              <text x="15" y="86" class="node-desc">deudas históricas</text>
+              <text x="15" y="106" class="node-btn">Inspeccionar →</text>
+            </g>
+
+            <!-- NODE: GLPI -->
+            <g class="node-group" id="node-glpi" transform="translate(760, 280)" onclick="selectNode('glpi')">
+              <rect class="node-bg" width="200" height="100" />
+              <text x="15" y="30" class="node-header">Mesa de Ayuda GLPI</text>
+              <text x="15" y="48" class="node-sub">External REST API</text>
+              <text x="15" y="68" class="node-desc">Apertura de tickets TI</text>
+              <text x="15" y="88" class="node-btn">Inspeccionar →</text>
+            </g>
+
+            <!-- NODE: SMTP -->
+            <g class="node-group" id="node-smtp" transform="translate(760, 430)" onclick="selectNode('smtp')">
+              <rect class="node-bg" width="200" height="100" />
+              <text x="15" y="30" class="node-header">Servidor SMTP Email</text>
+              <text x="15" y="48" class="node-sub">SMTP TLS (Port: 587)</text>
+              <text x="15" y="68" class="node-desc">Envío de contratos PDF</text>
+              <text x="15" y="88" class="node-btn">Inspeccionar →</text>
+            </g>
+
+            <!-- CONNECTION PATHS -->
+            <path id="conn-users-nginx" d="M 210 140 L 280 140" class="conn-path" marker-end="url(#arrow)" />
+            <path id="conn-nginx-web" d="M 470 140 L 500 140" class="conn-path" marker-end="url(#arrow)" />
+            <path id="conn-nginx-api" d="M 375 190 L 375 270" class="conn-path" marker-end="url(#arrow)" />
+            <path id="conn-web-api" d="M 595 190 L 595 270" class="conn-path" marker-end="url(#arrow)" />
+            <path id="conn-api-db" d="M 375 400 L 375 480" class="conn-path" marker-end="url(#arrow)" />
+            <path id="conn-api-redis" d="M 595 400 L 595 480" class="conn-path" marker-end="url(#arrow)" />
+            <path id="conn-db-fdw" d="M 280 540 L 210 540" class="conn-path" marker-end="url(#arrow)" />
+            <path id="conn-api-glpi" d="M 690 330 L 760 330" class="conn-path" marker-end="url(#arrow)" />
+            <path id="conn-api-smtp" d="M 690 365 L 760 480" class="conn-path" marker-end="url(#arrow)" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- RIGHT SIDE INSPECTOR PANEL -->
+      <div class="inspector-card" id="inspector">
+        <div class="inspector-header">
+          <div class="inspector-title" id="insp-title">CRM.ApiHub (.NET 8) (.NET 8 Web API)</div>
+          <span class="status-badge">Activo</span>
+        </div>
+
+        <div class="spec-item">
+          <div class="spec-label">Capa & Tipo de Componente</div>
+          <div class="spec-val" id="insp-layer">Backend / Núcleo Hexagonal</div>
+        </div>
+
+        <div class="spec-item">
+          <div class="spec-label">Contenedor & Puerto de Red</div>
+          <div class="spec-val" id="insp-port">Container: crm_api | Kestrel Server (Port: 5000)</div>
+        </div>
+
+        <div class="spec-item">
+          <div class="spec-label">Descripción Funcional</div>
+          <div class="spec-val" id="insp-desc">Servidor REST de alta concurrencia basado en Clean Architecture y CQRS. Gestiona tokens JWT HS256, validación de reglas comerciales y WebSocket Hubs.</div>
+        </div>
+
+        <div class="spec-item">
+          <div class="spec-label">Código C# / Configuración</div>
+          <div class="code-box" id="insp-code">[HttpPost("leads")]
+[Authorize(Roles = "Asesor,Supervisor")]
+public async Task<IActionResult> CreateLead([FromBody] CreateLeadDto dto) {
+  var result = await _mediator.Send(new CreateLeadCommand(dto));
+  return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+}</div>
+        </div>
+
+        <a href="../../02-modules/presales-leads/index.html" class="inspector-btn" id="insp-link">Abrir Documentación del Módulo →</a>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const NODE_DATA = {
+      users: {
+        title: "Usuarios / Roles del Call Center",
+        layer: "Cliente / Frontend",
+        port: "HTTPS 443 / WSS WebSocket",
+        desc: "Asesores de Ventas, Supervisores de Calidad y Analistas de Backoffice que interactúan con el CRM a través de Single Page Applications en Google Chrome/Edge.",
+        code: `// Token almacenado en cliente\nconst token = sessionStorage.getItem('authToken');\nheaders: { 'Authorization': \`Bearer \${token}\` }`,
+        link: "../../08-user-guides/asesor-guide.html"
+      },
+      nginx: {
+        title: "NGINX Reverse Proxy",
+        layer: "Infraestructura / Edge Gateway",
+        port: "Public: 80, 443 -> Docker Bridge",
+        desc: "Servidor web NGINX con terminación TLS 1.3, compresión gzip, enrutamiento de archivos estáticos Blazor y proxy reverso hacia Kestrel API en /api y /hubs.",
+        code: `location /api/ {\n  proxy_pass http://crm_api:5000;\n  proxy_set_header Host $host;\n  proxy_set_header X-Real-IP $remote_addr;\n}`,
+        link: "../../06-infrastructure/index.html"
+      },
+      web: {
+        title: "CRM.WebFrontend (Blazor) (Blazor WASM)",
+        layer: "Presentación Web (Single Page App)",
+        port: "Container Port: 8080",
+        desc: "Aplicación cliente compilada en WebAssembly .NET 8 con soporte para atajos de teclado, validación reactiva de formularios y conexión SignalR en tiempo real.",
+        code: `// AsesorDashboard.razor\nprotected override async Task OnInitializedAsync() {\n  leads = await LeadService.GetMyLeadsAsync();\n}`,
+        link: "../mockups/asesor-ui-mockups.html"
+      },
+      api: {
+        title: "CRM.ApiHub (.NET 8) (.NET 8 Web API)",
+        layer: "Backend / Núcleo Hexagonal",
+        port: "Container: crm_api | Kestrel Server (Port: 5000)",
+        desc: "Servidor REST de alta concurrencia basado en Clean Architecture y CQRS. Gestiona tokens JWT HS256, validación de reglas comerciales y WebSocket Hubs.",
+        code: `[HttpPost("leads")]\n[Authorize(Roles = "Asesor,Supervisor")]\npublic async Task<IActionResult> CreateLead([FromBody] CreateLeadDto dto) {\n  var result = await _mediator.Send(new CreateLeadCommand(dto));\n  return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);\n}`,
+        link: "../../02-modules/presales-leads/index.html"
+      },
+      db: {
+        title: "PostgreSQL 16 DB Database (crm_db)",
+        layer: "Persistencia Relacional",
+        port: "Container: crm_db | Port: 5432",
+        desc: "Motor relacional principal con esquemas auth, crm y extensión postgres_fdw. Índices B-Tree optimizados para consultas de duplicidad y transacciones ACID.",
+        code: `CREATE TABLE crm.sales_orders (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  lead_id UUID REFERENCES crm.leads(id),\n  advisor_id UUID REFERENCES auth.users(id),\n  status VARCHAR(50) NOT NULL\n);`,
+        link: "../../04-database/index.html"
+      },
+      redis: {
+        title: "Redis 7 Cache & Distributed Session",
+        layer: "Caché en Memoria",
+        port: "Container: crm_redis | Port: 6379",
+        desc: "Almacén clave-valor para listas negras de Refresh Tokens revocados, caché de planes comerciales y limitador de tasa de peticiones (Rate Limiting).",
+        code: `await _cache.SetStringAsync("blacklist:" + tokenId, "revoked", \n  new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1) });`,
+        link: "../../06-infrastructure/index.html"
+      },
+      fdw: {
+        title: "PostgreSQL FDW (Legacy ERP Gateway)",
+        layer: "Integración de Datos Históricos",
+        port: "Remote TCP 5432",
+        desc: "Esquema virtual legacy_fdw que permite a CRM.ApiHub consultar clientes antiguos y estados de deuda sin duplicar almacenamiento ni correr pipelines ETL pesados.",
+        code: `IMPORT FOREIGN SCHEMA public \nFROM SERVER legacy_erp_server \nINTO legacy_fdw;`,
+        link: "../../05-integrations/index.html"
+      },
+      glpi: {
+        title: "Mesa de Ayuda GLPI (REST API)",
+        layer: "Integración SaaS de Soporte",
+        port: "HTTPS / REST API v1",
+        desc: "Servicio de incidencias técnicas consumido vía HttpClient con política de reintentos exponenciales Polly en GlpiService.cs.",
+        code: `public async Task<int> CreateIncidentTicket(IncidentDto inc) {\n  var response = await _pollyPolicy.ExecuteAsync(() => \n    _httpClient.PostAsJsonAsync("/apirest.php/Ticket", inc));\n  return response.Id;\n}`,
+        link: "../../02-modules/kb-incidents/index.html"
+      },
+      smtp: {
+        title: "Servidor SMTP Mailer (TLS)",
+        layer: "Notificaciones Transaccionales",
+        port: "Port: 587 (STARTTLS)",
+        desc: "Servicio de despacho de contratos digitales en PDF y correos de aprobación de comisiones utilizando la librería MailKit con patrón Outbox.",
+        code: `var message = new MimeMessage();\nmessage.Subject = "Tu Contrato de Fibra Óptica - " + orderNumber;\nawait smtpClient.SendAsync(message);`,
+        link: "../../05-integrations/index.html"
+      }
+    };
+
+    let scale = 1;
+    let pointX = 0;
+    let pointY = 0;
+    let isMouseDown = false;
+    let startX = 0, startY = 0;
+    let initialX = 0, initialY = 0;
+    let hasMoved = false;
+
+    const viewport = document.getElementById('viewport');
+    const svgCanvas = document.getElementById('svgCanvas');
+
+    function setTransform() {
+      svgCanvas.style.transform = `translate(${pointX}px, ${pointY}px) scale(${scale})`;
+    }
+
+    viewport.addEventListener('mousedown', function (e) {
+      if (e.button !== 0) return;
+      isMouseDown = true;
+      hasMoved = false;
+      startX = e.clientX;
+      startY = e.clientY;
+      initialX = pointX;
+      initialY = pointY;
+    });
+
+    window.addEventListener('mousemove', function (e) {
+      if (!isMouseDown) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
+        hasMoved = true;
+        viewport.classList.add('is-dragging');
+        pointX = initialX + dx;
+        pointY = initialY + dy;
+        setTransform();
+      }
+    });
+
+    window.addEventListener('mouseup', function () {
+      isMouseDown = false;
+      viewport.classList.remove('is-dragging');
+    });
+
+    viewport.addEventListener('wheel', function (e) {
+      e.preventDefault();
+      const rect = viewport.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+      const xs = (mouseX - pointX) / scale;
+      const ys = (mouseY - pointY) / scale;
+      const factor = e.deltaY < 0 ? 1.12 : (1 / 1.12);
+      const newScale = Math.min(Math.max(0.4, scale * factor), 3.0);
+      pointX = mouseX - xs * newScale;
+      pointY = mouseY - ys * newScale;
+      scale = newScale;
+      setTransform();
+    }, { passive: false });
+
+    function zoomBy(factor) {
+      const rect = viewport.getBoundingClientRect();
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      const xs = (centerX - pointX) / scale;
+      const ys = (centerY - pointY) / scale;
+      const newScale = Math.min(Math.max(0.4, scale * factor), 3.0);
+      pointX = centerX - xs * newScale;
+      pointY = centerY - ys * newScale;
+      scale = newScale;
+      setTransform();
+    }
+
+    function resetZoom() {
+      scale = 1; pointX = 0; pointY = 0; setTransform();
+      document.querySelectorAll('.node-group').forEach(n => n.classList.remove('selected', 'dimmed'));
+      document.querySelectorAll('.conn-path').forEach(c => c.classList.remove('highlight'));
+      selectNode('api');
+    }
+
+    function selectNode(key) {
+      if (hasMoved) return; // Prevent selecting while dragging
+      const data = NODE_DATA[key];
+      if (!data) return;
+
+      document.querySelectorAll('.node-group').forEach(n => {
+        if (n.id === 'node-' + key) {
+          n.classList.add('selected');
+          n.classList.remove('dimmed');
+        } else {
+          n.classList.remove('selected');
+          n.classList.add('dimmed');
+        }
+      });
+
+      document.querySelectorAll('.conn-path').forEach(c => {
+        c.classList.toggle('highlight', c.id.includes(key));
+      });
+
+      document.getElementById('insp-title').textContent = data.title;
+      document.getElementById('insp-layer').textContent = data.layer;
+      document.getElementById('insp-port').textContent = data.port;
+      document.getElementById('insp-desc').textContent = data.desc;
+      document.getElementById('insp-code').textContent = data.code;
+      document.getElementById('insp-link').href = data.link;
+    }
+
+    function searchDiagram(q) {
+      const query = q.toLowerCase().trim();
+      if (!query) {
+        document.querySelectorAll('.node-group').forEach(n => n.classList.remove('dimmed', 'selected'));
+        return;
+      }
+      document.querySelectorAll('.node-group').forEach(n => {
+        const text = n.textContent.toLowerCase();
+        if (text.includes(query)) {
+          n.classList.remove('dimmed');
+          n.classList.add('selected');
+        } else {
+          n.classList.add('dimmed');
+          n.classList.remove('selected');
+        }
+      });
+    }
+  </script>
+<script>
+    function toggleCategory(catId) {
+      const btn = document.getElementById('btn-' + catId);
+      const menu = document.getElementById('menu-' + catId);
+      if (!btn || !menu) return;
+      const isOpen = menu.classList.contains('show');
+      if (isOpen) {
+        menu.classList.remove('show');
+        btn.classList.remove('open');
+      } else {
+        menu.classList.add('show');
+        btn.classList.add('open');
+      }
+    }
+
+    function filterNav(val) {
+      const q = val.toLowerCase().trim();
+      if (!q) {
+        document.querySelectorAll('.submenu').forEach(m => {
+          if (!m.dataset.autoOpen) {
+            m.classList.remove('show');
+            const btn = document.getElementById('btn-' + m.id.replace('menu-', ''));
+            if (btn) btn.classList.remove('open');
+          } else {
+            m.classList.add('show');
+            const btn = document.getElementById('btn-' + m.id.replace('menu-', ''));
+            if (btn) btn.classList.add('open');
+          }
+          m.querySelectorAll('a').forEach(a => a.style.display = 'flex');
+        });
+        document.querySelectorAll('.accordion-group').forEach(g => g.style.display = 'block');
+        return;
+      }
+
+      document.querySelectorAll('.accordion-group').forEach(group => {
+        let hasMatch = false;
+        group.querySelectorAll('.submenu a').forEach(a => {
+          const match = a.textContent.toLowerCase().includes(q);
+          a.style.display = match ? 'flex' : 'none';
+          if (match) hasMatch = true;
+        });
+        const menu = group.querySelector('.submenu');
+        const btn = group.querySelector('.accordion-btn');
+        if (hasMatch) {
+          menu.classList.add('show');
+          btn.classList.add('open');
+          group.style.display = 'block';
+        } else {
+          group.style.display = 'none';
+        }
+      });
+    }
+</script>
+</body>
+</html>

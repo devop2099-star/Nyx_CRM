@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Walkthrough Paso a Paso — Ciclo de Venta del Asesor — CRM Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #fafafa;
+      --surface: #ffffff;
+      --surface-2: #f4f4f5;
+      --border: #e4e4e7;
+      --border-strong: #d4d4d8;
+      --text: #18181b;
+      --text-muted: #71717a;
+      --accent: #18181b;
+      --accent-bg: #f4f4f5;
+      --nav-w: 270px;
+      --mono: 'JetBrains Mono', monospace;
+      --radius: 4px;
+      --radius-lg: 6px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; display: flex; min-height: 100vh; }
+
+    nav#sidebar { width: var(--nav-w); min-width: var(--nav-w); background: var(--surface); border-right: 1px solid var(--border); height: 100vh; position: sticky; top: 0; overflow-y: auto; display: flex; flex-direction: column; padding-bottom: 2rem; z-index: 10; }
+    .nav-header { padding: 1.25rem 1rem 0.75rem; border-bottom: 1px solid var(--border); font-weight: 600; font-size: 0.88rem; display: flex; align-items: center; gap: 0.5rem; }
+    .nav-header span { background: var(--accent-bg); color: var(--accent); font-family: var(--mono); font-size: 0.75rem; padding: 0.15rem 0.45rem; border-radius: var(--radius); }
+    .search-box { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+    .search-box input { width: 100%; padding: 0.45rem 0.65rem; border: 1px solid var(--border); border-radius: var(--radius); font-size: 0.8rem; background: var(--bg); color: var(--text); outline: none; }
+
+    main { flex: 1; padding: 2.5rem 3rem 5rem; max-width: 1100px; position: relative; }
+    .breadcrumb { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.25rem; }
+    .breadcrumb a { color: var(--text); text-decoration: none; font-weight: 500; }
+    .header-box { margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+    .header-box h1 { font-size: 2rem; font-weight: 500; letter-spacing: -0.03em; margin-bottom: 0.5rem; }
+    .header-box p { font-size: 1rem; color: var(--text-muted); }
+
+    /* PROGRESS BAR */
+    .walkthrough-flow {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2rem;
+      overflow-x: auto;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .flow-step {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      cursor: pointer;
+      padding: 0.35rem 0.65rem;
+      border-radius: var(--radius);
+      transition: background 0.15s;
+    }
+    .flow-step:hover { background: var(--surface-2); }
+    .flow-dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: var(--surface-2);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+    }
+    .flow-step.active .flow-dot {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+    }
+    .flow-step.completed .flow-dot {
+      background: var(--surface-2);
+      color: var(--text);
+      border-color: var(--border-strong);
+    }
+    .flow-label {
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+    .flow-step.active .flow-label {
+      color: var(--text);
+      font-weight: 600;
+    }
+    .flow-arrow {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      margin: 0 0.25rem;
+      user-select: none;
+    }
+
+    /* STEP CARDS */
+    .step-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+    .step-badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: var(--radius);
+      background: var(--accent-bg);
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+
+    .mockup-preview {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      margin: 1.25rem 0;
+    }
+
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+    .btn {
+      padding: 0.55rem 1.3rem;
+      border-radius: var(--radius);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      transition: all 0.15s;
+    }
+    .btn:hover:not(:disabled) { background: var(--surface-2); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
+    .btn-primary:hover:not(:disabled) { background: #27272a; }
+
+    code { font-family: var(--mono); font-size: 0.82em; background: var(--surface-2); border: 1px solid var(--border); padding: 0.15rem 0.4rem; border-radius: 3px; }
+
+    @media (max-width: 900px) {
+      body { flex-direction: column; }
+      nav#sidebar { width: 100%; height: auto; position: static; }
+      main { padding: 1.5rem; }
+    }
+  
+    /* ACCORDION SIDEBAR STYLES */
+    .accordion-group { margin-bottom: 0.35rem; }
+    .accordion-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0.85rem;
+      background: var(--surface);
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      color: var(--text);
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .accordion-btn:hover { background: var(--surface-2); }
+    .accordion-btn.open { background: var(--surface-2); border-color: var(--border); }
+    .accordion-btn .chevron {
+      font-size: 0.65rem;
+      transition: transform 0.2s ease;
+      color: var(--text-muted);
+    }
+    .accordion-btn.open .chevron { transform: rotate(90deg); }
+    .submenu {
+      display: none;
+      padding-left: 0.5rem;
+      margin-top: 0.2rem;
+      border-left: 2px solid var(--border);
+      margin-left: 0.85rem;
+    }
+    .submenu.show { display: flex; flex-direction: column; gap: 0.15rem; }
+    .submenu a {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.35rem 0.6rem;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      border-radius: var(--radius);
+      transition: background 0.15s, color 0.15s;
+    }
+    .submenu a:hover { background: var(--surface-2); color: var(--text); }
+    .submenu a.active {
+      background: var(--accent);
+      color: #ffffff !important;
+      font-weight: 500;
+    }
+    .submenu a.active .num { color: #d4d4d8 !important; }
+
+  </style>
+</head>
+<body>
+
+              <!-- ACCORDION SIDEBAR NAV -->
+    <!-- ACCORDION SIDEBAR NAV -->
+  <nav id="sidebar">
+    <div class="nav-header">
+      <div class="nav-logo-group">
+        <span class="nav-logo-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/></svg></span>
+        <span>CRM Docs</span>
+      </div>
+      <span class="version-tag">v1.0</span>
+    </div>
+    <div class="search-box">
+      <div class="search-input-wrap">
+        <svg class="search-icon-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" id="nav-search" placeholder="Buscar en documentación..." oninput="filterNav(this.value)">
+      </div>
+    </div>
+    <div id="nav-items" style="padding: 0.65rem 0.6rem;">
+      <div class="accordion-group">
+        <button class="accordion-btn" id="btn-cat-00" onclick="toggleCategory('cat-00')">
+          <span class="btn-title-group"><svg class="cat-icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg><span>00 - General & Inicio</span></span>
+          <svg class="chevron-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <div class="submenu" id="menu-cat-00">
+          <a href="../../index.html"><span class="num-tag">00</span>Portal Principal</a>
+          <a href="../../00-overview/index.html"><span class="num-tag">00</span>Visión General & Glosario</a>
+        </div>
+      </div>
+      <div class="accordion-group">
+        <button class="accordion-btn" id="btn-cat-01" onclick="toggleCategory('cat-01')">
+          <span class="btn-title-group"><svg class="cat-icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg><span>01 - Arquitectura</span></span>
+          <svg class="chevron-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <div class="submenu" id="menu-cat-01">
+          <a href="../../01-architecture/index.html"><span class="num-tag">01</span>Arquitectura Hexagonal & ADRs</a>
+        </div>
+      </div>
+      <div class="accordion-group">
+        <button class="accordion-btn" id="btn-cat-02" onclick="toggleCategory('cat-02')">
+          <span class="btn-title-group"><svg class="cat-icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1.5"/><rect width="7" height="7" x="14" y="3" rx="1.5"/><rect width="7" height="7" x="14" y="14" rx="1.5"/><rect width="7" height="7" x="3" y="14" rx="1.5"/></svg><span>02 - Módulos del Sistema</span></span>
+          <svg class="chevron-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <div class="submenu" id="menu-cat-02">
+          <a href="../../02-modules/authentication/index.html"><span class="num-tag">02</span>Autenticación & JWT</a>
+          <a href="../../02-modules/presales-leads/index.html"><span class="num-tag">02</span>Pre-Ventas & Leads</a>
+          <a href="../../02-modules/sales-orders/index.html"><span class="num-tag">02</span>Órdenes de Venta</a>
+          <a href="../../02-modules/backoffice-activations/index.html"><span class="num-tag">02</span>Backoffice & Activaciones</a>
+          <a href="../../02-modules/commissions/index.html"><span class="num-tag">02</span>Motor de Comisiones</a>
+          <a href="../../02-modules/supervisor-audit/index.html"><span class="num-tag">02</span>Auditoría & Supervisión</a>
+          <a href="../../02-modules/kb-incidents/index.html"><span class="num-tag">02</span>Mesa de Ayuda & KB</a>
+          <a href="../../02-modules/notifications/index.html"><span class="num-tag">02</span>Notificaciones SignalR</a>
+        </div>
+      </div>
+      <div class="accordion-group">
+        <button class="accordion-btn" id="btn-cat-03" onclick="toggleCategory('cat-03')">
+          <span class="btn-title-group"><svg class="cat-icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9v2a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V9"/><circle cx="6" cy="6" r="3"/><path d="M6 9v3"/></svg><span>03 - Flujos E2E</span></span>
+          <svg class="chevron-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <div class="submenu" id="menu-cat-03">
+          <a href="../../03-flows/index.html"><span class="num-tag">03</span>Flujo Comercial E2E</a>
+        </div>
+      </div>
+      <div class="accordion-group">
+        <button class="accordion-btn" id="btn-cat-04" onclick="toggleCategory('cat-04')">
+          <span class="btn-title-group"><svg class="cat-icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></svg><span>04 - Base de Datos</span></span>
+          <svg class="chevron-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <div class="submenu" id="menu-cat-04">
+          <a href="../../04-database/index.html"><span class="num-tag">04</span>Diccionario PostgreSQL 16</a>
+        </div>
+      </div>
+      <div class="accordion-group">
+        <button class="accordion-btn" id="btn-cat-05" onclick="toggleCategory('cat-05')">
+          <span class="btn-title-group"><svg class="cat-icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v8"/><path d="m4.93 10.93 4.24 4.24"/><path d="M2 12h8"/><path d="m4.93 13.07 4.24-4.24"/><circle cx="16" cy="16" r="6"/></svg><span>05 - Integraciones</span></span>
+          <svg class="chevron-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <div class="submenu" id="menu-cat-05">
+          <a href="../../05-integrations/index.html"><span class="num-tag">05</span>Integraciones (FDW/GLPI/SMTP)</a>
+        </div>
+      </div>
+      <div class="accordion-group">
+        <button class="accordion-btn" id="btn-cat-06" onclick="toggleCategory('cat-06')">
+          <span class="btn-title-group"><svg class="cat-icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="8" x="2" y="2" rx="2"/><rect width="20" height="8" x="2" y="14" rx="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/></svg><span>06 - Infraestructura</span></span>
+          <svg class="chevron-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <div class="submenu" id="menu-cat-06">
+          <a href="../../06-infrastructure/index.html"><span class="num-tag">06</span>Docker, NGINX & SSL</a>
+        </div>
+      </div>
+      <div class="accordion-group">
+        <button class="accordion-btn" id="btn-cat-07" onclick="toggleCategory('cat-07')">
+          <span class="btn-title-group"><svg class="cat-icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg><span>07 - Operaciones</span></span>
+          <svg class="chevron-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <div class="submenu" id="menu-cat-07">
+          <a href="../../07-operations/index.html"><span class="num-tag">07</span>Despliegue & Monitoreo</a>
+        </div>
+      </div>
+      <div class="accordion-group">
+        <button class="accordion-btn" id="btn-cat-08" onclick="toggleCategory('cat-08')">
+          <span class="btn-title-group"><svg class="cat-icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg><span>08 - Guías de Usuario</span></span>
+          <svg class="chevron-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <div class="submenu" id="menu-cat-08">
+          <a href="../../08-user-guides/asesor-guide.html"><span class="num-tag">08</span>Guía del Asesor 360°</a>
+          <a href="../../08-user-guides/supervisor-guide.html"><span class="num-tag">08</span>Guía del Supervisor</a>
+          <a href="../../08-user-guides/backoffice-guide.html"><span class="num-tag">08</span>Guía de Backoffice</a>
+        </div>
+      </div>
+      <div class="accordion-group">
+        <button class="accordion-btn open" id="btn-cat-09" onclick="toggleCategory('cat-09')">
+          <span class="btn-title-group"><svg class="cat-icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg><span>09 - Visual, Diagramas & Mockups</span></span>
+          <svg class="chevron-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <div class="submenu show" id="menu-cat-09" data-auto-open="true">
+          <a href="../diagrams/system-architecture-diagram.html"><span class="num-tag">09</span>Diagrama Arquitectura C4</a>
+          <a href="../diagrams/database-er-diagram.html"><span class="num-tag">09</span>Diagrama ERD Base Datos</a>
+          <a href="../diagrams/hexagonal-architecture-diagram.html"><span class="num-tag">09</span>Diagrama Hexagonal</a>
+          <a href="asesor-sales-walkthrough.html" class="active"><span class="num-tag">09</span>Walkthrough Ciclo de Venta</a>
+          <a href="../mockups/asesor-ui-mockups.html"><span class="num-tag">09</span>Mockups UI Asesor</a>
+          <a href="../mockups/supervisor-ui-mockups.html"><span class="num-tag">09</span>Mockups UI Supervisor</a>
+          <a href="../mockups/backoffice-ui-mockups.html"><span class="num-tag">09</span>Mockups UI Backoffice</a>
+        </div>
+      </div>
+      <div class="accordion-group">
+        <button class="accordion-btn" id="btn-cat-10" onclick="toggleCategory('cat-10')">
+          <span class="btn-title-group"><svg class="cat-icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>10 - Soporte & QA</span></span>
+          <svg class="chevron-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <div class="submenu" id="menu-cat-10">
+          <a href="../../10-knowledge-base/index.html"><span class="num-tag">10</span>10 - Knowledge Base</a>
+          <a href="../../11-incidents/index.html"><span class="num-tag">11</span>11 - Incidencias & Bugs</a>
+          <a href="../../12-security/index.html"><span class="num-tag">12</span>12 - Seguridad & RBAC</a>
+          <a href="../../13-testing/index.html"><span class="num-tag">13</span>13 - Testing & QA</a>
+        </div>
+      </div>
+      <div class="accordion-group">
+        <button class="accordion-btn" id="btn-cat-99" onclick="toggleCategory('cat-99')">
+          <span class="btn-title-group"><svg class="cat-icon-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg><span>99 - Referencia</span></span>
+          <svg class="chevron-svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <div class="submenu" id="menu-cat-99">
+          <a href="../../14-changelog/index.html"><span class="num-tag">14</span>14 - Changelog v1.0.0</a>
+          <a href="../../99-reference/index.html"><span class="num-tag">99</span>99 - Referencia & cURL</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main>
+    <div class="breadcrumb">
+      <a href="../../index.html">docs</a> / <a href="../README.md">09-visual-docs</a> / <span>asesor-sales-walkthrough</span>
+    </div>
+
+    <div class="header-box">
+      <h1>Walkthrough Visual Interactivo — Ciclo de Venta E2E</h1>
+      <p>Guía interactiva paso a paso de la gestión comercial del Asesor desde el contacto inicial hasta la liquidación de la comisión.</p>
+    </div>
+
+    <!-- PROGRESS BAR COMPONENT -->
+    <div class="walkthrough-flow">
+      <div class="flow-step active" id="dot-1" onclick="goToStep(1)">
+        <div class="flow-dot">1</div>
+        <div class="flow-label">Captura Lead</div>
+      </div>
+      <div class="flow-arrow">›</div>
+      <div class="flow-step" id="dot-2" onclick="goToStep(2)">
+        <div class="flow-dot">2</div>
+        <div class="flow-label">Calificación</div>
+      </div>
+      <div class="flow-arrow">›</div>
+      <div class="flow-step" id="dot-3" onclick="goToStep(3)">
+        <div class="flow-dot">3</div>
+        <div class="flow-label">Formalización</div>
+      </div>
+      <div class="flow-arrow">›</div>
+      <div class="flow-step" id="dot-4" onclick="goToStep(4)">
+        <div class="flow-dot">4</div>
+        <div class="flow-label">Adjuntos SHA256</div>
+      </div>
+      <div class="flow-arrow">›</div>
+      <div class="flow-step" id="dot-5" onclick="goToStep(5)">
+        <div class="flow-dot">5</div>
+        <div class="flow-label">Auditoría & SignalR</div>
+      </div>
+    </div>
+
+    <!-- STEP 1 CONTENT -->
+    <div class="step-card" id="step-1">
+      <span class="step-badge">Paso 1 de 5</span>
+      <h2>1. Recepción de Llamada & Validación de Cédula (DNI Módulo 10)</h2>
+      <p style="margin: 0.75rem 0 1.25rem; color: var(--text-muted)">
+        El asesor recibe la llamada o contacto comercial y presiona <code>Ctrl + Alt + N</code> en <code>AsesorDashboard.razor</code> para abrir el formulario modal de captura rápida.
+      </p>
+
+      <div class="mockup-preview">
+        <h4 style="margin-bottom: 0.5rem">Acciones del Asesor:</h4>
+        <ul style="padding-left: 1.2rem; font-size: 0.88rem; color: var(--text)">
+          <li>Ingresa el número de Cédula/DNI y presiona <strong>Validar DNI</strong>.</li>
+          <li>El backend ejecuta el algoritmo módulo 10 y consulta duplicados en los últimos 30 días en PostgreSQL.</li>
+          <li>Completa nombres, apellidos, teléfono (10 dígitos) y correo electrónico.</li>
+        </ul>
+      </div>
+
+      <div style="font-size: 0.85rem; color: var(--text-muted); background: var(--bg); border: 1px solid var(--border); padding: 0.75rem 1rem; border-radius: var(--radius)">
+        <strong>API Ejecutada:</strong> <code>POST /api/v1/presales/leads</code> ➔ Retorna HTTP 201 Created (Status: <code>New</code>).
+      </div>
+    </div>
+
+    <!-- STEP 2 CONTENT -->
+    <div class="step-card" id="step-2" style="display:none">
+      <span class="step-badge">Paso 2 de 5</span>
+      <h2>2. Calificación Técnica & Crediticia con Formulario Dinámico</h2>
+      <p style="margin: 0.75rem 0 1.25rem; color: var(--text-muted)">
+        Con el lead en estado <code>New</code>, el asesor hace clic en <strong>Calificar Elegibilidad</strong> para renderizar el cuestionario JSON de factibilidad técnica y consulta FDW.
+      </p>
+
+      <div class="mockup-preview">
+        <h4 style="margin-bottom: 0.5rem">Acciones del Asesor:</h4>
+        <ul style="padding-left: 1.2rem; font-size: 0.88rem; color: var(--text)">
+          <li>Verifica la cercanía de la caja dispersora (NAP) a la dirección del cliente (&lt; 300 metros).</li>
+          <li>Confirma que el cliente no mantenga deudas activas consultando el esquema <code>legacy_fdw.customers</code>.</li>
+          <li>Guarda las respuestas en el campo <code>qualification_json</code> (JSONB).</li>
+        </ul>
+      </div>
+
+      <div style="font-size: 0.85rem; color: var(--text-muted); background: var(--bg); border: 1px solid var(--border); padding: 0.75rem 1rem; border-radius: var(--radius)">
+        <strong>API Ejecutada:</strong> <code>POST /api/v1/presales/leads/{id}/qualify</code> ➔ Cambia estado a <code>Qualified</code>.
+      </div>
+    </div>
+
+    <!-- STEP 3 CONTENT -->
+    <div class="step-card" id="step-3" style="display:none">
+      <span class="step-badge">Paso 3 de 5</span>
+      <h2>3. Selección de Plan Comercial & Formalización de la Orden</h2>
+      <p style="margin: 0.75rem 0 1.25rem; color: var(--text-muted)">
+        El asesor hace clic en <strong>Generar Orden de Venta</strong> y es redirigido a la vista de orden <code>AsesorOrderDetail.razor</code>.
+      </p>
+
+      <div class="mockup-preview">
+        <h4 style="margin-bottom: 0.5rem">Acciones del Asesor:</h4>
+        <ul style="padding-left: 1.2rem; font-size: 0.88rem; color: var(--text)">
+          <li>Selecciona el plan contratado (ej: <code>PLAN-FIBRA-300M</code> - $45.00/mes).</li>
+          <li>Registra la dirección exacta, piso/departamento y referencias de llegada.</li>
+          <li>Se genera automáticamente el número correlativo de orden: <code>SO-2026-08-0042</code>.</li>
+        </ul>
+      </div>
+
+      <div style="font-size: 0.85rem; color: var(--text-muted); background: var(--bg); border: 1px solid var(--border); padding: 0.75rem 1rem; border-radius: var(--radius)">
+        <strong>API Ejecutada:</strong> <code>POST /api/v1/orders</code> ➔ Estado de la orden: <code>PendingDocuments</code>.
+      </div>
+    </div>
+
+    <!-- STEP 4 CONTENT -->
+    <div class="step-card" id="step-4" style="display:none">
+      <span class="step-badge">Paso 4 de 5</span>
+      <h2>4. Carga Multipart de Adjuntos & Verificación SHA256</h2>
+      <p style="margin: 0.75rem 0 1.25rem; color: var(--text-muted)">
+        El sistema exige dos documentos bloqueantes antes de poder enviar la venta a revisión de supervisión de calidad.
+      </p>
+
+      <div class="mockup-preview">
+        <h4 style="margin-bottom: 0.5rem">Documentos Requeridos (&lt; 10 MB):</h4>
+        <ul style="padding-left: 1.2rem; font-size: 0.88rem; color: var(--text)">
+          <li><strong>Cédula / DNI Frontal y Posterior:</strong> Archivo PDF/PNG con legibilidad de número y firma.</li>
+          <li><strong>Contrato Digital Firmado:</strong> Archivo PDF con consentimiento de débito o pago.</li>
+          <li>El backend calcula el hash SHA256 inmutable y lo almacena en <code>crm.order_documents</code>.</li>
+        </ul>
+      </div>
+
+      <div style="font-size: 0.85rem; color: var(--text-muted); background: var(--bg); border: 1px solid var(--border); padding: 0.75rem 1rem; border-radius: var(--radius)">
+        <strong>API Ejecutada:</strong> <code>POST /api/v1/orders/{id}/documents</code> (Multipart Form-Data) ➔ HTTP 201 Created.
+      </div>
+    </div>
+
+    <!-- STEP 5 CONTENT -->
+    <div class="step-card" id="step-5" style="display:none">
+      <span class="step-badge">Paso 5 de 5</span>
+      <h2>5. Envío a Auditoría & Notificación SignalR al Supervisor</h2>
+      <p style="margin: 0.75rem 0 1.25rem; color: var(--text-muted)">
+        Al cumplirse los requisitos bloqueantes, se activa el botón verde <strong>Enviar Orden a Auditoría</strong>.
+      </p>
+
+      <div class="mockup-preview">
+        <h4 style="margin-bottom: 0.5rem">Efectos del Envío:</h4>
+        <ul style="padding-left: 1.2rem; font-size: 0.88rem; color: var(--text)">
+          <li>La orden cambia al estado <code>PendingAudit</code>.</li>
+          <li>El Hub de SignalR emite una notificación push a la campana del Supervisor de turno en tiempo real.</li>
+          <li>Si el supervisor aprueba (Score &ge; 80), Backoffice activa la orden y la comisión comercial se liquida al asesor.</li>
+        </ul>
+      </div>
+
+      <div style="font-size: 0.85rem; color: var(--text-muted); background: var(--bg); border: 1px solid var(--border); padding: 0.75rem 1rem; border-radius: var(--radius)">
+        <strong>API Ejecutada:</strong> <code>POST /api/v1/orders/{id}/submit-audit</code> ➔ Notificación push WebSocket emitida.
+      </div>
+    </div>
+
+    <!-- NAVIGATION BUTTONS -->
+    <div class="nav-buttons">
+      <button class="btn" id="prev-btn" onclick="prevStep()" disabled>← Paso Anterior</button>
+      <div style="font-size: 0.82rem; color: var(--text-muted)" id="step-indicator">Paso 1 de 5</div>
+      <button class="btn btn-primary" id="next-btn" onclick="nextStep()">Siguiente Paso →</button>
+    </div>
+  </main>
+
+  <script>
+    let currentStep = 1;
+    const totalSteps = 5;
+
+    function goToStep(step) {
+      currentStep = step;
+      updateUI();
+    }
+
+    function nextStep() {
+      if (currentStep < totalSteps) {
+        currentStep++;
+        updateUI();
+      }
+    }
+
+    function prevStep() {
+      if (currentStep > 1) {
+        currentStep--;
+        updateUI();
+      }
+    }
+
+    function updateUI() {
+      for (let i = 1; i <= totalSteps; i++) {
+        const stepCard = document.getElementById('step-' + i);
+        const dot = document.getElementById('dot-' + i);
+        if (stepCard && dot) {
+          if (i === currentStep) {
+            stepCard.style.display = 'block';
+            dot.className = 'flow-step active';
+          } else if (i < currentStep) {
+            stepCard.style.display = 'none';
+            dot.className = 'flow-step completed';
+          } else {
+            stepCard.style.display = 'none';
+            dot.className = 'flow-step';
+          }
+        }
+      }
+
+      const prevBtn = document.getElementById('prev-btn');
+      const nextBtn = document.getElementById('next-btn');
+      const indicator = document.getElementById('step-indicator');
+
+      if (prevBtn) prevBtn.disabled = (currentStep === 1);
+      if (nextBtn) {
+        nextBtn.textContent = (currentStep === totalSteps) ? '✓ Flujo Completado' : 'Siguiente Paso →';
+      }
+      if (indicator) {
+        indicator.textContent = `Paso ${currentStep} de ${totalSteps}`;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      updateUI();
+    });
+  </script>
+<script>
+    function toggleCategory(catId) {
+      const btn = document.getElementById('btn-' + catId);
+      const menu = document.getElementById('menu-' + catId);
+      if (!btn || !menu) return;
+      const isOpen = menu.classList.contains('show');
+      if (isOpen) {
+        menu.classList.remove('show');
+        btn.classList.remove('open');
+      } else {
+        menu.classList.add('show');
+        btn.classList.add('open');
+      }
+    }
+
+    function filterNav(val) {
+      const q = val.toLowerCase().trim();
+      if (!q) {
+        document.querySelectorAll('.submenu').forEach(m => {
+          if (!m.dataset.autoOpen) {
+            m.classList.remove('show');
+            const btn = document.getElementById('btn-' + m.id.replace('menu-', ''));
+            if (btn) btn.classList.remove('open');
+          } else {
+            m.classList.add('show');
+            const btn = document.getElementById('btn-' + m.id.replace('menu-', ''));
+            if (btn) btn.classList.add('open');
+          }
+          m.querySelectorAll('a').forEach(a => a.style.display = 'flex');
+        });
+        document.querySelectorAll('.accordion-group').forEach(g => g.style.display = 'block');
+        return;
+      }
+
+      document.querySelectorAll('.accordion-group').forEach(group => {
+        let hasMatch = false;
+        group.querySelectorAll('.submenu a').forEach(a => {
+          const match = a.textContent.toLowerCase().includes(q);
+          a.style.display = match ? 'flex' : 'none';
+          if (match) hasMatch = true;
+        });
+        const menu = group.querySelector('.submenu');
+        const btn = group.querySelector('.accordion-btn');
+        if (hasMatch) {
+          menu.classList.add('show');
+          btn.classList.add('open');
+          group.style.display = 'block';
+        } else {
+          group.style.display = 'none';
+        }
+      });
+    }
+</script>
+</body>
+</html>

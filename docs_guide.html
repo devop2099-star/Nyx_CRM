@@ -1,0 +1,1874 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estándar Documental — docs/</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fafafa;
+    --surface: #ffffff;
+    --surface-2: #f4f4f5;
+    --border: #e4e4e7;
+    --border-strong: #d4d4d8;
+    --text: #18181b;
+    --text-2: #52525b;
+    --text-3: #a1a1aa;
+    --text-muted: #71717a;
+    --accent: #18181b;
+    --accent-bg: #f4f4f5;
+    --accent-text: #18181b;
+    --teal: #52525b;
+    --teal-bg: #f4f4f5;
+    --teal-text: #27272a;
+    --amber: #52525b;
+    --amber-bg: #f4f4f5;
+    --amber-text: #27272a;
+    --coral: #52525b;
+    --coral-bg: #f4f4f5;
+    --coral-text: #27272a;
+    --slate: #52525b;
+    --slate-bg: #f4f4f5;
+    --slate-text: #27272a;
+    --radius: 4px;
+    --radius-lg: 6px;
+    --nav-w: 260px;
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 15px; scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ── NAV ── */
+  nav {
+    width: var(--nav-w);
+    min-width: var(--nav-w);
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    padding: 0 0 2rem;
+  }
+  .nav-logo {
+    padding: 1.25rem 1.25rem 1rem;
+    border-bottom: 1px solid var(--border);
+    font-weight: 500;
+    font-size: 0.85rem;
+    letter-spacing: 0.03em;
+    color: var(--text-2);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .nav-logo span {
+    background: var(--accent-bg);
+    color: var(--accent-text);
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+  .nav-section {
+    padding: 0.85rem 1.25rem 0.25rem;
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+  nav a {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.4rem 1.25rem;
+    font-size: 0.82rem;
+    color: var(--text-2);
+    text-decoration: none;
+    border-radius: 0;
+    transition: background 0.1s, color 0.1s;
+  }
+  nav a:hover { background: var(--bg); color: var(--text); }
+  nav a.active { background: var(--accent-bg); color: var(--accent-text); font-weight: 500; }
+  nav a .num {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--text-3);
+    min-width: 22px;
+  }
+
+  /* ── MAIN ── */
+  main {
+    flex: 1;
+    padding: 3rem 2.5rem 5rem;
+    max-width: 860px;
+  }
+
+  /* ── HEADER ── */
+  .page-header {
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .page-eyebrow {
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+  }
+  .page-header h1 {
+    font-size: 2rem;
+    font-weight: 500;
+    letter-spacing: -0.025em;
+    line-height: 1.2;
+    margin-bottom: 0.85rem;
+  }
+  .page-header p {
+    font-size: 1rem;
+    color: var(--text-2);
+    max-width: 560px;
+  }
+  .philosophy-box {
+    margin-top: 1.5rem;
+    background: var(--accent-bg);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 0.9rem 1.1rem;
+    font-size: 0.875rem;
+    color: var(--accent-text);
+    font-style: italic;
+  }
+
+  /* ── SECTIONS ── */
+  .section {
+    margin-bottom: 4rem;
+    scroll-margin-top: 2rem;
+  }
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+  .section-num {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--text-3);
+    min-width: 28px;
+  }
+  .section h2 {
+    font-size: 1.2rem;
+    font-weight: 500;
+    letter-spacing: -0.015em;
+  }
+  .section h3 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-2);
+    margin: 1.25rem 0 0.5rem;
+  }
+  .section p {
+    font-size: 0.88rem;
+    color: var(--text-2);
+    margin-bottom: 0.75rem;
+  }
+
+  /* ── CARD GRID ── */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.75rem;
+    margin: 1rem 0;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.1rem;
+  }
+  .card-icon {
+    font-size: 1.2rem;
+    margin-bottom: 0.4rem;
+  }
+  .card h4 {
+    font-size: 0.82rem;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+  }
+  .card p {
+    font-size: 0.77rem;
+    color: var(--text-3);
+    margin: 0;
+  }
+
+  /* ── BADGES ── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 500;
+  }
+  .badge-purple { background: var(--accent-bg); color: var(--accent-text); }
+  .badge-teal { background: var(--teal-bg); color: var(--teal-text); }
+  .badge-amber { background: var(--amber-bg); color: var(--amber-text); }
+  .badge-coral { background: var(--coral-bg); color: var(--coral-text); }
+  .badge-slate { background: var(--slate-bg); color: var(--slate-text); }
+
+  /* ── FILE TREE ── */
+  .filetree {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin: 1rem 0;
+  }
+  .filetree-header {
+    background: var(--surface-2);
+    padding: 0.6rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+  .filetree-body {
+    padding: 0.75rem 0;
+    font-family: var(--mono);
+    font-size: 0.775rem;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  .tree-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.18rem 1rem;
+    cursor: pointer;
+    color: var(--text-2);
+    transition: background 0.1s;
+    user-select: none;
+  }
+  .tree-item:hover { background: var(--bg); }
+  .tree-item .indent { color: var(--border-strong); }
+  .tree-item .folder { color: var(--accent); }
+  .tree-item .file-icon { color: var(--text-3); }
+  .tree-item .name { flex: 1; }
+  .tree-item .desc {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.7rem;
+    color: var(--text-3);
+    font-style: italic;
+  }
+  .tree-item.collapsed > .name::after { content: ' '; color: var(--text-3); font-size: 0.65rem; }
+  .tree-children { }
+  .tree-children.hidden { display: none; }
+
+  /* ── FLOW ── */
+  .flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 1rem 0;
+    position: relative;
+  }
+  .flow-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    position: relative;
+    padding-bottom: 1.25rem;
+  }
+  .flow-item:last-child { padding-bottom: 0; }
+  .flow-line {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    width: 32px;
+  }
+  .flow-dot {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+  .flow-connector {
+    width: 1px;
+    flex: 1;
+    background: var(--border);
+    margin-top: 4px;
+    min-height: 20px;
+  }
+  .flow-item:last-child .flow-connector { display: none; }
+  .flow-content {
+    padding-top: 0.3rem;
+    flex: 1;
+  }
+  .flow-content h4 { font-size: 0.85rem; font-weight: 500; margin-bottom: 0.2rem; }
+  .flow-content p { font-size: 0.8rem; color: var(--text-2); margin: 0; }
+
+  /* ── TEMPLATE BOX ── */
+  .template-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin: 1rem 0;
+  }
+  .template-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.65rem 1rem;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+  }
+  .template-title { font-size: 0.78rem; font-weight: 500; color: var(--text-2); font-family: var(--mono); }
+  .template-body {
+    padding: 1rem;
+    font-family: var(--mono);
+    font-size: 0.775rem;
+    line-height: 1.7;
+    color: var(--text-2);
+    white-space: pre-wrap;
+    overflow-x: auto;
+    max-height: 340px;
+    overflow-y: auto;
+  }
+
+  /* ── RULE GRID ── */
+  .rules-grid {
+    display: grid;
+    gap: 0.65rem;
+    margin: 1rem 0;
+  }
+  .rule-item {
+    display: flex;
+    gap: 0.85rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.85rem 1rem;
+    align-items: flex-start;
+    transition: border-color 0.15s;
+  }
+  .rule-item:hover { border-color: var(--border-strong); }
+  .rule-num {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--accent);
+    background: var(--accent-bg);
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    min-width: 36px;
+    text-align: center;
+    flex-shrink: 0;
+    margin-top: 0.05rem;
+  }
+  .rule-text h4 { font-size: 0.83rem; font-weight: 500; margin-bottom: 0.2rem; }
+  .rule-text p { font-size: 0.78rem; color: var(--text-2); margin: 0; }
+
+  /* ── ADR STATUS ── */
+  .status-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin: 1rem 0;
+    flex-wrap: wrap;
+  }
+  .status-tab {
+    padding: 0.3rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    background: var(--surface);
+    color: var(--text-2);
+    transition: all 0.15s;
+  }
+  .status-tab:hover, .status-tab.active { border-color: var(--accent); background: var(--accent-bg); color: var(--accent-text); }
+
+  /* ── TABS ── */
+  .tabs-wrapper { margin: 1rem 0; }
+  .tabs-list {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    gap: 0;
+  }
+  .tab-btn {
+    padding: 0.55rem 1rem;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text-3);
+    background: none;
+    border: none;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.15s;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-panel { display: none; padding: 1.25rem 0; }
+  .tab-panel.active { display: block; }
+
+  /* ── INCIDENT FLOW ── */
+  .incident-flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-wrap: wrap;
+    margin: 1rem 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    gap: 0;
+  }
+  .inc-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.4rem;
+    flex: 1;
+    min-width: 80px;
+  }
+  .inc-dot {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+  }
+  .inc-label { font-size: 0.72rem; font-weight: 500; color: var(--text-2); }
+  .inc-arrow {
+    color: var(--border-strong);
+    font-size: 0.9rem;
+    align-self: center;
+    margin-top: -8px;
+    padding: 0 0.15rem;
+  }
+
+  /* ── SUMMARY ── */
+  .summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.83rem;
+    margin: 1rem 0;
+  }
+  .summary-table th {
+    text-align: left;
+    padding: 0.6rem 0.9rem;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+    font-size: 0.73rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-2);
+  }
+  .summary-table td {
+    padding: 0.65rem 0.9rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    color: var(--text-2);
+  }
+  .summary-table td:first-child {
+    font-family: var(--mono);
+    font-size: 0.77rem;
+    color: var(--accent-text);
+    font-weight: 500;
+  }
+  .summary-table tr:last-child td { border-bottom: none; }
+  .summary-table tr:hover td { background: var(--bg); }
+
+  /* ── CODE INLINE ── */
+  code {
+    font-family: var(--mono);
+    font-size: 0.82em;
+    background: var(--surface-2);
+    padding: 0.1rem 0.35rem;
+    border-radius: 4px;
+    color: var(--accent-text);
+  }
+
+  /* ── COPY BTN ── */
+  .copy-btn {
+    font-size: 0.72rem;
+    padding: 0.2rem 0.55rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    color: var(--text-2);
+    font-family: 'Inter', sans-serif;
+    transition: all 0.1s;
+  }
+  .copy-btn:hover { background: var(--bg); border-color: var(--border-strong); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    body { flex-direction: column; }
+    nav { width: 100%; min-width: unset; height: auto; position: static; border-right: none; border-bottom: 1px solid var(--border); }
+    .filetree-body { overflow-x: auto; }
+    nav a { padding: 0.4rem 0.9rem; }
+    main { padding: 2rem 1.25rem 4rem; }
+  }
+
+  /* ── ANCHOR ── */
+  .anchor-link { display: none; }
+  .section-header:hover .anchor-link { display: inline; font-size: 0.85rem; color: var(--text-3); margin-left: 0.3rem; text-decoration: none; }
+
+  /* ── DIVIDER ── */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+
+  /* ── ADDED TAG ── */
+  .new-tag {
+    font-size: 0.67rem;
+    font-weight: 500;
+    background: var(--teal-bg);
+    color: var(--teal-text);
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    vertical-align: middle;
+    margin-left: 0.4rem;
+  }
+
+  .search-bar {
+    margin: 0.75rem 1.25rem;
+    position: relative;
+  }
+  .search-bar input {
+    width: 100%;
+    padding: 0.45rem 0.75rem 0.45rem 2rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.8rem;
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+    font-family: 'Inter', sans-serif;
+  }
+  .search-bar input:focus { border-color: var(--accent); }
+  .search-bar::before {
+    content: '⌕';
+    position: absolute;
+    left: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-3);
+    font-size: 1rem;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="sidebar">
+  <div class="nav-logo">
+     <span>docs/</span> Estándar base
+  </div>
+  <div class="search-bar">
+    <input type="text" id="nav-search" placeholder="Buscar sección..." oninput="filterNav(this.value)">
+  </div>
+  <div id="nav-items">
+    <div class="nav-section">Introducción</div>
+    <a href="#filosofia" class="active"><span class="num">00</span>Filosofía</a>
+    <a href="#estructura"><span class="num">—</span>Estructura completa</a>
+    <a href="#readme"><span class="num">—</span>index.html raíz</a>
+
+    <div class="nav-section">Carpetas</div>
+    <a href="#overview"><span class="num">00</span>Overview</a>
+    <a href="#architecture"><span class="num">01</span>Architecture + ADR</a>
+    <a href="#modules"><span class="num">02</span>Modules</a>
+    <a href="#flows"><span class="num">03</span>Flows</a>
+    <a href="#database"><span class="num">04</span>Database</a>
+    <a href="#integrations"><span class="num">05</span>Integrations</a>
+    <a href="#infrastructure"><span class="num">06</span>Infrastructure</a>
+    <a href="#operations"><span class="num">07</span>Operations</a>
+    <a href="#user-guides"><span class="num">08</span>User guides</a>
+    <a href="#visual-docs"><span class="num">09</span>Visual docs</a>
+    <a href="#knowledge-base"><span class="num">10</span>Knowledge base</a>
+    <a href="#incidents"><span class="num">11</span>Incidents + Bugs</a>
+    <a href="#security"><span class="num">12</span>Security</a>
+    <a href="#testing"><span class="num">13</span>Testing</a>
+    <a href="#changelog"><span class="num">14</span>Changelog</a>
+    <a href="#reference"><span class="num">99</span>Reference</a>
+    <a href="#templates"><span class="num">_</span>Templates</a>
+
+    <div class="nav-section">Plantillas</div>
+    <a href="#tmpl-adr"><span class="num">—</span>ADR</a>
+    <a href="#tmpl-bug"><span class="num">—</span>Bug</a>
+    <a href="#tmpl-kb"><span class="num">—</span>Knowledge base</a>
+    <a href="#tmpl-module"><span class="num">—</span>Módulo</a>
+    <a href="#tmpl-flow"><span class="num">—</span>Flujo</a>
+    <a href="#tmpl-integration"><span class="num">—</span>Integración</a>
+
+    <div class="nav-section">Cierre</div>
+    <a href="#relaciones"><span class="num">—</span>Cómo se relacionan</a>
+    <a href="#reglas"><span class="num">—</span>10 reglas de oro</a>
+    <a href="#resumen"><span class="num">—</span>Resumen final</a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main>
+
+  <!-- HEADER -->
+  <div class="page-header" id="filosofia">
+    <div class="page-eyebrow">Estándar documental base</div>
+    <h1>La memoria técnica<br>de tus proyectos</h1>
+    <p>Una estructura de <code>docs/</code> que funciona para .NET, Python, Blazor, WPF, API, ETL — cualquier stack. Cópiala, adáptala, mantenla.</p>
+    <div class="philosophy-box">
+      <strong>Filosofía central:</strong> <code>docs/</code> no es un almacén de archivos: es la memoria técnica, operativa y funcional del proyecto.
+    </div>
+  </div>
+
+  <!-- PILARES -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">—</span>
+      <h2>Pilares del sistema</h2>
+    </div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-icon"></div>
+        <h4>Markdown</h4>
+        <p>Conocimiento estructurado — arquitectura, ADR, base de datos, APIs</p>
+      </div>
+      <div class="card">
+        <div class="card-icon"></div>
+        <h4>HTML</h4>
+        <p>Explicación visual, mockups, walkthroughs y guías interactivas</p>
+      </div>
+      <div class="card">
+        <div class="card-icon"></div>
+        <h4>Diagramas</h4>
+        <p>Comprensión rápida de sistemas, flujos y arquitectura</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">️</div>
+        <h4>ADR</h4>
+        <p>Por qué se tomaron las decisiones técnicas</p>
+      </div>
+      <div class="card">
+        <div class="card-icon"></div>
+        <h4>Incidents/Bugs</h4>
+        <p>Qué ocurrió, cómo se investigó y qué se aprendió</p>
+      </div>
+      <div class="card">
+        <div class="card-icon"></div>
+        <h4>Knowledge Base</h4>
+        <p>Cómo resolverlo la próxima vez sin depender de una persona</p>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ESTRUCTURA COMPLETA -->
+  <div class="section" id="estructura">
+    <div class="section-header">
+      <span class="section-num">—</span>
+      <h2>Estructura completa</h2>
+    </div>
+    <p>Haz clic en cualquier carpeta para expandir o contraer su contenido.</p>
+
+    <div class="filetree">
+      <div class="filetree-header">
+        <span> docs/</span>
+        <div style="display:flex;gap:0.5rem">
+          <button class="copy-btn" onclick="expandAll()">Expandir todo</button>
+          <button class="copy-btn" onclick="collapseAll()">Contraer todo</button>
+        </div>
+      </div>
+      <div class="filetree-body" id="tree-root"></div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- README -->
+  <div class="section" id="readme">
+    <div class="section-header">
+      <span class="section-num">—</span>
+      <h2>index.html — portal de entrada</h2>
+    </div>
+    <p>No explica todo. Su función es llevarte rápidamente al lugar correcto.</p>
+    <div class="template-box">
+      <div class="template-header">
+        <span class="template-title">docs/index.html</span>
+        <button class="copy-btn" onclick="copyTemplate('readme-tpl')">Copiar</button>
+      </div>
+      <div class="template-body" id="readme-tpl"># Documentación — Sistema [Nombre]
+
+## Descripción
+Sistema encargado de [propósito principal].
+
+## Arquitectura
+- [Arquitectura general](01-architecture/index.html)</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 00-OVERVIEW -->
+  <div class="section" id="overview">
+    <div class="section-header">
+      <span class="section-num">00</span>
+      <h2>Overview — qué es este proyecto</h2>
+    </div>
+    <p>Responde preguntas básicas sin entrar en detalles técnicos:</p>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin:0.75rem 0">
+      <span class="badge badge-slate">¿Qué es este proyecto?</span>
+      <span class="badge badge-slate">¿Para qué existe?</span>
+      <span class="badge badge-slate">¿Qué alcance tiene?</span>
+      <span class="badge badge-slate">¿Qué NO hace?</span>
+    </div>
+    <div class="template-box">
+      <div class="template-header">
+        <span class="template-title">00-overview/index.html</span>
+        <button class="copy-btn" onclick="copyTemplate('overview-tpl')">Copiar</button>
+      </div>
+      <div class="template-body" id="overview-tpl"># Project Overview
+
+## Qué es
+Sistema utilizado para gestionar...
+
+## Objetivo
+Centralizar...
+
+## Usuarios
+- Administradores
+- Supervisores
+- Operadores
+
+## Principales funcionalidades
+- Gestión de usuarios
+- Gestión de tickets
+- Reportes
+- Notificaciones
+
+## Integraciones
+- GLPI
+- PostgreSQL
+- SMTP
+
+## Estado
+Activo</div>
+    </div>
+  </div>
+
+  <!-- 01-ARCHITECTURE -->
+  <div class="section" id="architecture">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2>Architecture + ADR</h2>
+    </div>
+    <p>Documenta cómo está construido el sistema y — más importante — <em>por qué</em> se tomaron las decisiones.</p>
+
+    <div class="tabs-wrapper">
+      <div class="tabs-list">
+        <button class="tab-btn active" onclick="switchTab(this,'arch-tabs','arch-overview')">Arquitectura</button>
+        <button class="tab-btn" onclick="switchTab(this,'arch-tabs','arch-adr')">ADR</button>
+        <button class="tab-btn" onclick="switchTab(this,'arch-tabs','arch-tmpl')">Plantilla ADR</button>
+      </div>
+      <div id="arch-overview" class="tab-panel active">
+        <p>Incluye en <code>01-architecture/</code>:</p>
+        <div class="card-grid" style="grid-template-columns: repeat(auto-fit,minmax(160px,1fr))">
+          <div class="card"><h4>architecture-overview.md</h4><p>Vista general del sistema</p></div>
+          <div class="card"><h4>hexagonal-architecture.md</h4><p>Cómo se implementó en <em>este</em> proyecto</p></div>
+          <div class="card"><h4>system-context.md</h4><p>Actores externos y límites</p></div>
+          <div class="card"><h4>components.md</h4><p>Componentes principales</p></div>
+          <div class="card"><h4>dependencies.md</h4><p>Dependencias entre capas</p></div>
+          <div class="card"><h4>integrations.md</h4><p>Servicios externos conectados</p></div>
+        </div>
+        <p style="margin-top:0.75rem">Los diagramas van en <code>01-architecture/diagrams/</code> — siempre en <code>.drawio</code> + <code>.png</code> exportado.</p>
+      </div>
+      <div id="arch-adr" class="tab-panel">
+        <p>La carpeta <code>decisions/</code> responde: <strong>¿por qué hicimos esto así?</strong></p>
+        <div class="rules-grid">
+          <div class="rule-item">
+            <span class="rule-num">ADR</span>
+            <div class="rule-text">
+              <h4>Arquitectura hexagonal</h4>
+              <p><code>ADR-001-hexagonal-architecture.md</code> — Por qué se eligió este patrón sobre MVC o vertical slice.</p>
+            </div>
+          </div>
+          <div class="rule-item">
+            <span class="rule-num">ADR</span>
+            <div class="rule-text">
+              <h4>Base de datos</h4>
+              <p><code>ADR-002-database.md</code> — Por qué PostgreSQL sobre SQL Server, MySQL u otros.</p>
+            </div>
+          </div>
+          <div class="rule-item">
+            <span class="rule-num">ADR</span>
+            <div class="rule-text">
+              <h4>Autenticación</h4>
+              <p><code>ADR-003-authentication.md</code> — Por qué JWT en lugar de sessions o OAuth2.</p>
+            </div>
+          </div>
+        </div>
+        <p style="margin-top:0.75rem;font-size:0.82rem;color:var(--text-2)">Cada nuevo ADR debe ser numerado secuencialmente. Los estados posibles: <span class="badge badge-teal">Aceptado</span> <span class="badge badge-amber">Propuesto</span> <span class="badge badge-coral">Deprecated</span> <span class="badge badge-slate">Supersedido</span></p>
+      </div>
+      <div id="arch-tmpl" class="tab-panel" id="tmpl-adr">
+        <div class="template-box">
+          <div class="template-header">
+            <span class="template-title">_templates/ADR/template.md</span>
+            <button class="copy-btn" onclick="copyTemplate('adr-tpl')">Copiar</button>
+          </div>
+          <div class="template-body" id="adr-tpl"># ADR-XXX — [Título de la decisión]
+
+## Estado
+Aceptado
+
+## Fecha
+YYYY-MM-DD
+
+## Contexto
+El sistema necesita...
+
+## Problema
+Necesitamos decidir...
+
+## Alternativas
+1. Opción A
+2. Opción B
+3. Opción C
+
+## Decisión
+Utilizar [opción elegida].
+
+## Motivos
+- ...
+- ...
+- ...
+
+## Consecuencias
+
+### Positivas
+- ...
+
+### Negativas
+- ...
+
+## Implementación
+...
+
+## Referencias
+- ...
+
+## Revisado por
+- Nombre (fecha)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 02-MODULES -->
+  <div class="section" id="modules">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2>Modules</h2>
+    </div>
+    <p>Documenta módulos <strong>funcionales</strong>, no la estructura de carpetas del código. La estructura de <code>src/</code> no define la estructura de <code>docs/02-modules/</code>.</p>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin:0.75rem 0 1rem">
+      <span class="badge badge-purple">authentication/</span>
+      <span class="badge badge-purple">users/</span>
+      <span class="badge badge-purple">notifications/</span>
+      <span class="badge badge-purple">attendance/</span>
+      <span class="badge badge-purple">tickets/</span>
+      <span class="badge badge-purple">reports/</span>
+    </div>
+    <p>Cada módulo tiene la misma estructura interna:</p>
+    <div class="template-box">
+      <div class="template-header">
+        <span class="template-title">_templates/module/index.html</span>
+        <button class="copy-btn" onclick="copyTemplate('module-tpl')">Copiar</button>
+      </div>
+      <div class="template-body" id="module-tpl"># [Nombre del módulo]
+
+## Propósito
+...
+
+## Responsabilidades
+- ...
+- ...
+
+## Funcionalidades
+- ...
+- ...
+
+## Reglas de negocio
+...
+
+## Tecnologías
+
+| Tecnología | Versión | Uso |
+|---|---|---|
+| .NET | 8 | Backend |
+| PostgreSQL | 16 | Persistencia |
+| Redis | 7 | Cache |
+
+## Dependencias
+- Module X
+- Service Y
+
+## Endpoints
+
+| Método | Endpoint | Descripción |
+|---|---|---|
+| GET | /users | Obtener usuarios |
+| POST | /users | Crear usuario |
+
+## Integraciones
+...
+
+## Flujos relacionados
+...
+
+## Problemas conocidos
+...
+
+## Documentación visual
+...
+
+## Última actualización
+YYYY-MM-DD</div>
+    </div>
+  </div>
+
+  <!-- 03-FLOWS -->
+  <div class="section" id="flows">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h2>Flows</h2>
+    </div>
+    <p>Documenta <strong>procesos</strong>, no solo endpoints. Un flujo puede involucrar frontend, API, application, domain, database y servicios externos.</p>
+    <div class="template-box">
+      <div class="template-header">
+        <span class="template-title">_templates/flow/template.md</span>
+        <button class="copy-btn" onclick="copyTemplate('flow-tpl')">Copiar</button>
+      </div>
+      <div class="template-body" id="flow-tpl"># [Nombre del flujo]
+
+## Objetivo
+...
+
+## Actores
+- Usuario
+- Frontend
+- API
+
+## Precondiciones
+...
+
+## Flujo principal
+1. ...
+2. ...
+3. ...
+4. ...
+
+## Flujos alternativos
+
+### Caso A
+...
+
+### Caso B
+...
+
+## Errores
+
+| Error | Causa | Acción |
+|---|---|---|
+| 401 | Token inválido | Autenticarse |
+| 404 | Recurso inexistente | Verificar ID |
+
+## Componentes involucrados
+- Frontend
+- API
+- Application
+- Domain
+- Database
+
+## Diagrama
+...
+
+## Documentación visual
+[Walkthrough](...)
+
+## Última actualización
+YYYY-MM-DD</div>
+    </div>
+  </div>
+
+  <!-- 04-DATABASE -->
+  <div class="section" id="database">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <h2>Database</h2>
+    </div>
+    <p>No solo tablas. Documenta toda la capa de datos:</p>
+    <div class="card-grid" style="grid-template-columns: repeat(auto-fit,minmax(150px,1fr))">
+      <div class="card"><h4>architecture.md</h4><p>Visión general de la BD</p></div>
+      <div class="card"><h4>schemas.md</h4><p>Schemas y organización</p></div>
+      <div class="card"><h4>tables.md</h4><p>Tablas con propósito</p></div>
+      <div class="card"><h4>relationships.md</h4><p>FK y relaciones</p></div>
+      <div class="card"><h4>indexes.md</h4><p>Índices y justificación</p></div>
+      <div class="card"><h4>migrations.md</h4><p>Historial de cambios</p></div>
+    </div>
+    <p>La subcarpeta <code>queries/</code> incluye: <span class="badge badge-slate">common.md</span> <span class="badge badge-slate">maintenance.md</span> <span class="badge badge-amber">troubleshooting.md</span></p>
+  </div>
+
+  <!-- 05-INTEGRATIONS -->
+  <div class="section" id="integrations">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <h2>Integrations</h2>
+    </div>
+    <p><strong>Diferencia clave:</strong> <code>02-modules</code> = lo que pertenece a tu sistema. <code>05-integrations</code> = cómo tu sistema se conecta con otros.</p>
+    <div class="template-box">
+      <div class="template-header">
+        <span class="template-title">_templates/integration/template.md</span>
+        <button class="copy-btn" onclick="copyTemplate('int-tpl')">Copiar</button>
+      </div>
+      <div class="template-body" id="int-tpl"># [Servicio externo]
+
+## Propósito
+...
+
+## Autenticación
+...
+
+## Base URL
+...
+
+## Endpoints utilizados
+
+| Método | Endpoint | Uso |
+|---|---|---|
+| GET | /api/... | ... |
+
+## Request
+```json
+{}
+```
+
+## Response
+```json
+{}
+```
+
+## Errores
+...
+
+## Rate limits
+...
+
+## Retries
+...
+
+## Timeout
+...
+
+## Webhooks
+...
+
+## Contacto / documentación oficial
+...
+
+## Última actualización
+YYYY-MM-DD</div>
+    </div>
+  </div>
+
+  <!-- 06-INFRASTRUCTURE -->
+  <div class="section" id="infrastructure">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <h2>Infrastructure</h2>
+    </div>
+    <p>Describe dónde y sobre qué corre el sistema. Cada environment tiene su archivo propio.</p>
+    <div class="card-grid" style="grid-template-columns: repeat(auto-fit,minmax(180px,1fr))">
+      <div class="card"><h4>environments.md</h4><p>Development / Staging / Production</p></div>
+      <div class="card"><h4>docker.md</h4><p>Compose, imágenes, contenedores</p></div>
+      <div class="card"><h4>nginx.md</h4><p>Configuración del proxy reverso</p></div>
+      <div class="card"><h4>ssl.md</h4><p>Certificados y renovación</p></div>
+      <div class="card"><h4>networking.md</h4><p>Puertos, subredes, firewall</p></div>
+      <div class="card"><h4>servers.md</h4><p>Specs de servidores</p></div>
+    </div>
+  </div>
+
+  <!-- 07-OPERATIONS -->
+  <div class="section" id="operations">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <h2>Operations</h2>
+    </div>
+    <p>Responde: <em>¿Cómo opero el sistema?</em> Debe ser procedimental — pasos concretos, no descripción genérica.</p>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin:0.75rem 0">
+      <span class="badge badge-slate">deployment.md</span>
+      <span class="badge badge-slate">rollback.md</span>
+      <span class="badge badge-slate">backup.md</span>
+      <span class="badge badge-slate">restore.md</span>
+      <span class="badge badge-slate">monitoring.md</span>
+      <span class="badge badge-slate">logs.md</span>
+      <span class="badge badge-amber">troubleshooting.md</span>
+    </div>
+  </div>
+
+  <!-- 08-USER GUIDES -->
+  <div class="section" id="user-guides">
+    <div class="section-header">
+      <span class="section-num">08</span>
+      <h2>User guides</h2>
+    </div>
+    <p><strong>Regla:</strong> Si alguien necesita aprender a usar una funcionalidad, va aquí. Cada guía existe en dos versiones.</p>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-icon"></div>
+        <h4>Markdown (.md)</h4>
+        <p>Versión imprimible, texto estructurado, sin dependencias de navegador</p>
+      </div>
+      <div class="card">
+        <div class="card-icon"></div>
+        <h4>HTML (.html)</h4>
+        <p>Capturas, flechas, resaltados, mockups, pasos interactivos, navegación</p>
+      </div>
+    </div>
+    <div class="template-box" style="margin-top:1rem">
+      <div class="template-header">
+        <span class="template-title">_templates/user-guide/template.md</span>
+        <button class="copy-btn" onclick="copyTemplate('ug-tpl')">Copiar</button>
+      </div>
+      <div class="template-body" id="ug-tpl"># [Acción — verbo + sustantivo]
+
+## Objetivo
+Qué logra el usuario al completar esta guía.
+
+## Requisitos
+- Permiso de administrador
+- Versión mínima: X
+
+## Pasos
+1. Abrir [módulo].
+2. Presionar [botón].
+3. Completar los datos.
+4. Guardar.
+
+## Resultado esperado
+...
+
+## Problemas frecuentes
+...
+
+## Guía visual
+[Abrir guía visual](nombre.html)</div>
+    </div>
+  </div>
+
+  <!-- 09-VISUAL DOCS -->
+  <div class="section" id="visual-docs">
+    <div class="section-header">
+      <span class="section-num">09</span>
+      <h2>Visual documentation</h2>
+    </div>
+    <p>No solo para el usuario final. Aquí van mockups incluso de pantallas que todavía no existen — útil para diseño, desarrollo, reuniones y validación funcional.</p>
+    <div class="card-grid">
+      <div class="card"><h4>mockups/</h4><p>Pantallas y componentes UI</p></div>
+      <div class="card"><h4>walkthroughs/</h4><p>Flujos paso a paso navegables</p></div>
+      <div class="card"><h4>diagrams/</h4><p>Arquitectura, sistema e integraciones como HTML</p></div>
+      <div class="card"><h4>ui/</h4><p>Screens, components, navigation</p></div>
+    </div>
+    <p>Cada guía HTML puede incluir una barra de progreso y navegación paso a paso:</p>
+    <div class="incident-flow" style="padding:1.5rem">
+      <div class="inc-step">
+        <div class="inc-dot" style="background:var(--accent-bg);color:var(--accent)">①</div>
+        <div class="inc-label">Paso anterior</div>
+      </div>
+      <div class="inc-arrow">›</div>
+      <div class="inc-step">
+        <div class="inc-dot" style="background:var(--accent);color:#fff">②</div>
+        <div class="inc-label" style="color:var(--accent);font-weight:600">Paso actual</div>
+      </div>
+      <div class="inc-arrow">›</div>
+      <div class="inc-step">
+        <div class="inc-dot" style="background:var(--surface-2);color:var(--text-3)">③</div>
+        <div class="inc-label">Siguiente</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 10-KNOWLEDGE BASE -->
+  <div class="section" id="knowledge-base">
+    <div class="section-header">
+      <span class="section-num">10</span>
+      <h2>Knowledge base <span class="new-tag"> más importante a largo plazo</span></h2>
+    </div>
+    <p>Objetivo: que alguien pueda resolver un problema <strong>sin preguntarle a quien creó el sistema</strong>.</p>
+
+    <div class="tabs-wrapper">
+      <div class="tabs-list">
+        <button class="tab-btn active" onclick="switchTab(this,'kb-tabs','kb-cat')">Categorías</button>
+        <button class="tab-btn" onclick="switchTab(this,'kb-tabs','kb-tmpl')">Plantilla troubleshooting</button>
+        <button class="tab-btn" onclick="switchTab(this,'kb-tabs','kb-rule')">Regla de la KB</button>
+      </div>
+      <div id="kb-cat" class="tab-panel active">
+        <div class="card-grid">
+          <div class="card" style="border-left:3px solid var(--accent)">
+            <h4>how-to/</h4>
+            <p>"Quiero hacer X." — Instrucciones para tareas concretas.</p>
+          </div>
+          <div class="card" style="border-left:3px solid var(--coral)">
+            <h4>troubleshooting/</h4>
+            <p>"Algo está fallando." — Guías de diagnóstico y solución.</p>
+          </div>
+          <div class="card" style="border-left:3px solid var(--amber)">
+            <h4>runbooks/</h4>
+            <p>"Hay que ejecutar un procedimiento operativo." — Paso a paso para incidentes.</p>
+          </div>
+          <div class="card" style="border-left:3px solid var(--teal)">
+            <h4>concepts/</h4>
+            <p>"Necesito entender cómo funciona." — Explicaciones profundas.</p>
+          </div>
+          <div class="card" style="border-left:3px solid var(--slate)">
+            <h4>recipes/</h4>
+            <p>"Necesito hacer rápidamente esta tarea concreta." — Comandos y snippets.</p>
+          </div>
+        </div>
+      </div>
+      <div id="kb-tmpl" class="tab-panel">
+        <div class="template-box" id="tmpl-kb">
+          <div class="template-header">
+            <span class="template-title">_templates/knowledge-base/troubleshooting.md</span>
+            <button class="copy-btn" onclick="copyTemplate('kb-tpl')">Copiar</button>
+          </div>
+          <div class="template-body" id="kb-tpl"># [Título del problema]
+
+## Objetivo
+Describe qué problema resuelve esta guía.
+
+---
+
+## Cuándo utilizar esta guía
+
+Utiliza esta guía cuando:
+- ...
+- ...
+
+### Síntomas
+- ...
+
+---
+
+## Requisitos
+- ...
+
+---
+
+## Diagnóstico
+
+### Paso 1 — [Acción]
+
+Ejecutar:
+```bash
+...
+```
+
+### Resultado esperado
+...
+
+### Si ocurre X → continuar con [paso N]
+### Si ocurre Y → continuar con [paso M]
+
+---
+
+## Solución
+
+### Paso 1
+...
+
+### Paso 2
+...
+
+---
+
+## Validación
+
+La solución funcionó si:
+- [ ] ...
+- [ ] ...
+
+---
+
+## Si no funciona
+Continuar con: [Diagnóstico avanzado](...)
+
+---
+
+## Qué NO hacer
+-  ...
+-  ...
+
+---
+
+## Rollback
+1. ...
+2. ...
+
+---
+
+## Referencias
+- BUG-XXX
+- INC-XXX
+- ADR-XXX
+
+---
+
+## Última revisión
+YYYY-MM-DD</div>
+        </div>
+      </div>
+      <div id="kb-rule" class="tab-panel">
+        <div class="rules-grid">
+          <div class="rule-item">
+            <span class="rule-num" style="background:var(--teal-bg);color:var(--teal-text)"></span>
+            <div class="rule-text"><h4>Accionable, no informativa</h4><p>Toda guía debe indicar cuándo usarla, pasos, resultado esperado, qué hacer si falla, y rollback cuando corresponda.</p></div>
+          </div>
+          <div class="rule-item">
+            <span class="rule-num" style="background:var(--teal-bg);color:var(--teal-text)"></span>
+            <div class="rule-text"><h4>Crear desde incidentes reales</h4><p>Cada vez que se resuelve un problema que puede repetirse, se crea la guía correspondiente en la KB.</p></div>
+          </div>
+          <div class="rule-item">
+            <span class="rule-num" style="background:var(--teal-bg);color:var(--teal-text)"></span>
+            <div class="rule-text"><h4>Enlazar al origen</h4><p>Cada guía debe referenciar el BUG/INC que la originó. Los bugs deben enlazar a la guía de KB resultante.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 11-INCIDENTS -->
+  <div class="section" id="incidents">
+    <div class="section-header">
+      <span class="section-num">11</span>
+      <h2>Incidents + Bugs</h2>
+    </div>
+    <p>El ciclo de vida completo de un problema — desde la detección hasta el conocimiento reutilizable.</p>
+
+    <div class="incident-flow">
+      <div class="inc-step">
+        <div class="inc-dot" style="background:var(--coral-bg);color:var(--coral)"></div>
+        <div class="inc-label">Problema</div>
+      </div>
+      <div class="inc-arrow">→</div>
+      <div class="inc-step">
+        <div class="inc-dot" style="background:var(--amber-bg);color:var(--amber)"></div>
+        <div class="inc-label">Investiga</div>
+      </div>
+      <div class="inc-arrow">→</div>
+      <div class="inc-step">
+        <div class="inc-dot" style="background:var(--amber-bg);color:var(--amber)"></div>
+        <div class="inc-label">Mitiga</div>
+      </div>
+      <div class="inc-arrow">→</div>
+      <div class="inc-step">
+        <div class="inc-dot" style="background:var(--teal-bg);color:var(--teal)"></div>
+        <div class="inc-label">Resuelve</div>
+      </div>
+      <div class="inc-arrow">→</div>
+      <div class="inc-step">
+        <div class="inc-dot" style="background:var(--accent-bg);color:var(--accent)"></div>
+        <div class="inc-label">KB</div>
+      </div>
+    </div>
+
+    <div class="tabs-wrapper" style="margin-top:1rem">
+      <div class="tabs-list">
+        <button class="tab-btn active" onclick="switchTab(this,'inc-tabs','inc-types')">Tipos</button>
+        <button class="tab-btn" onclick="switchTab(this,'inc-tabs','inc-bug')">Plantilla Bug</button>
+      </div>
+      <div id="inc-types" class="tab-panel active">
+        <div class="rules-grid">
+          <div class="rule-item">
+            <span class="rule-num" style="background:var(--coral-bg);color:var(--coral-text)">BUG</span>
+            <div class="rule-text"><h4>Bug — error funcional o técnico</h4><p><code>bugs/BUG-001-login-error.md</code> — Algo que debería funcionar y no funciona.</p></div>
+          </div>
+          <div class="rule-item">
+            <span class="rule-num" style="background:var(--amber-bg);color:var(--amber-text)">INC</span>
+            <div class="rule-text"><h4>Incident — afecta operación o servicio</h4><p><code>incidents/INC-001-database-down.md</code> — Problema que impacta disponibilidad.</p></div>
+          </div>
+          <div class="rule-item">
+            <span class="rule-num" style="background:var(--slate-bg);color:var(--slate-text)">KI</span>
+            <div class="rule-text"><h4>Known issue — existe y puede tener workaround</h4><p><code>known-issues/KI-001-external-api-limit.md</code> — Evita llamar "resuelto" a algo que sigue existiendo.</p></div>
+          </div>
+        </div>
+      </div>
+      <div id="inc-bug" class="tab-panel" id="tmpl-bug">
+        <div class="template-box">
+          <div class="template-header">
+            <span class="template-title">_templates/bug/template.md</span>
+            <button class="copy-btn" onclick="copyTemplate('bug-tpl')">Copiar</button>
+          </div>
+          <div class="template-body" id="bug-tpl"># BUG-[XXX] — [Título]
+
+## Estado
+ Abierto
+<!--  Abierto |  Investigando |  Mitigado |  Resuelto |  Cerrado |  Reabierto -->
+
+## Severidad
+Alta / Media / Baja
+
+## Fecha de detección
+YYYY-MM-DD
+
+## Última actualización
+YYYY-MM-DD
+
+---
+
+# 1. Problema
+
+## Descripción
+...
+
+## Síntomas
+- ...
+
+## Impacto
+- ...
+
+## Cómo reproducir
+1. ...
+2. ...
+3. ...
+
+## Evidencia
+- Logs, screenshots, queries, métricas
+
+---
+
+# 2. Investigación
+
+## Hipótesis inicial
+...
+
+---
+
+# 3. Intentos
+
+## Intento #1 — [Descripción]
+### Hipótesis
+...
+### Acción
+...
+### Resultado
+ No solucionó.
+### Evidencia
+...
+
+## Intento #2 — [Descripción]
+### Hipótesis
+...
+### Acción
+...
+### Resultado
+ Mejoró parcialmente.
+
+---
+
+# 4. Causa
+
+## Causa identificada
+...
+
+## Causa raíz
+...
+
+## Nivel de certeza
+ Confirmada /  Probable /  No identificada
+
+---
+
+# 5. Resolución
+
+## Tipo
+- [ ] Workaround
+- [ ] Mitigación
+- [ ] Solución parcial
+- [ ] Solución definitiva
+
+## Solución aplicada
+...
+
+## Cambios realizados
+...
+
+---
+
+# 6. Validación
+- [ ] Caso original solucionado
+- [ ] Casos relacionados validados
+- [ ] Sin regresiones
+
+---
+
+# 7. Seguimiento
+## Pendientes
+- [ ] ...
+
+---
+
+# 8. Resolución definitiva
+> Completar solo cuando la causa raíz esté confirmada y solucionada.
+
+## Fecha
+...
+## Causa raíz
+...
+## Solución definitiva
+...
+
+---
+
+# 9. Knowledge Base
+Si puede volver a ocurrir:
+[Guía de troubleshooting](../../10-knowledge-base/troubleshooting/...)
+
+---
+
+# Referencias
+- Issue:
+- Commit:
+- Pull Request:</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 12, 13, 14 compactos -->
+  <div class="section" id="security">
+    <div class="section-header">
+      <span class="section-num">12</span>
+      <h2>Security</h2>
+    </div>
+    <p>Documenta autenticación, autorización, permisos y reglas de seguridad. <strong>Nunca guardes secretos reales</strong> — solo documenta qué variables existen, no sus valores.</p>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin:0.75rem 0">
+      <span class="badge badge-coral">authentication.md</span>
+      <span class="badge badge-coral">authorization.md</span>
+      <span class="badge badge-coral">permissions.md</span>
+      <span class="badge badge-coral">secrets.md</span>
+      <span class="badge badge-coral">vulnerabilities.md</span>
+    </div>
+  </div>
+
+  <div class="section" id="testing">
+    <div class="section-header">
+      <span class="section-num">13</span>
+      <h2>Testing</h2>
+    </div>
+    <p>Estrategia de pruebas del sistema:</p>
+    <div class="card-grid">
+      <div class="card"><h4>strategy.md</h4><p>Filosofía, coverage mínimo, herramientas</p></div>
+      <div class="card"><h4>unit-tests.md</h4><p>Domain + Application</p></div>
+      <div class="card"><h4>integration-tests.md</h4><p>DB + servicios externos</p></div>
+      <div class="card"><h4>e2e-tests.md</h4><p>Frontend → API → DB</p></div>
+    </div>
+  </div>
+
+  <div class="section" id="changelog">
+    <div class="section-header">
+      <span class="section-num">14</span>
+      <h2>Changelog</h2>
+    </div>
+    <p>Historial de versiones y breaking changes. Responde: <em>¿Qué cambió entre versiones?</em></p>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin:0.75rem 0">
+      <span class="badge badge-teal">releases/v1.0.0.md</span>
+      <span class="badge badge-teal">releases/v1.1.0.md</span>
+      <span class="badge badge-coral">breaking-changes.md</span>
+    </div>
+  </div>
+
+  <div class="section" id="reference">
+    <div class="section-header">
+      <span class="section-num">99</span>
+      <h2>Reference — chuleta técnica</h2>
+    </div>
+    <p>Información de consulta rápida. No requiere lectura secuencial.</p>
+    <div class="card-grid">
+      <div class="card"><h4>commands.md</h4><p>Comandos frecuentes</p></div>
+      <div class="card"><h4>environment-variables.md</h4><p>Variables de entorno</p></div>
+      <div class="card"><h4>ports.md</h4><p>Puertos del sistema</p></div>
+      <div class="card"><h4>error-codes.md</h4><p>Códigos de error propios</p></div>
+      <div class="card"><h4>services.md</h4><p>Tabla de servicios</p></div>
+      <div class="card"><h4>useful-links.md</h4><p>Links externos relevantes</p></div>
+    </div>
+  </div>
+
+  <div class="section" id="templates">
+    <div class="section-header">
+      <span class="section-num">_</span>
+      <h2>Templates — mantener el estándar</h2>
+    </div>
+    <p>Permite que todos tus proyectos mantengan el mismo estándar. Copia la carpeta <code>_templates/</code> a cada nuevo repositorio.</p>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin:0.75rem 0">
+      <span class="badge badge-purple">ADR/</span>
+      <span class="badge badge-purple">module/</span>
+      <span class="badge badge-purple">flow/</span>
+      <span class="badge badge-purple">bug/</span>
+      <span class="badge badge-purple">incident/</span>
+      <span class="badge badge-purple">known-issue/</span>
+      <span class="badge badge-purple">knowledge-base/</span>
+      <span class="badge badge-purple">integration/</span>
+      <span class="badge badge-purple">user-guide/</span>
+      <span class="badge badge-purple">html/</span>
+    </div>
+    <p>La carpeta <code>_templates/html/</code> es especialmente importante: define la identidad visual común de todos tus HTML — header, breadcrumb, estilos, scripts.</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- RELACIONES -->
+  <div class="section" id="relaciones">
+    <div class="section-header">
+      <span class="section-num">—</span>
+      <h2>Cómo se relacionan todas las carpetas</h2>
+    </div>
+    <div class="summary-table" style="border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden">
+      <table class="summary-table">
+        <thead>
+          <tr><th>Carpeta</th><th>Pregunta que responde</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>00-overview</td><td>¿Qué es este proyecto y para qué existe?</td></tr>
+          <tr><td>01-architecture</td><td>¿Cómo está construido el sistema?</td></tr>
+          <tr><td>02-modules</td><td>¿Qué hace cada parte?</td></tr>
+          <tr><td>03-flows</td><td>¿Cómo funciona cada proceso?</td></tr>
+          <tr><td>04-database</td><td>¿Cómo está modelada la información?</td></tr>
+          <tr><td>05-integrations</td><td>¿Con qué sistemas externos se comunica?</td></tr>
+          <tr><td>06-infrastructure</td><td>¿Dónde y sobre qué corre?</td></tr>
+          <tr><td>07-operations</td><td>¿Cómo se administra?</td></tr>
+          <tr><td>08-user-guides</td><td>¿Cómo se usa?</td></tr>
+          <tr><td>09-visual-docs</td><td>¿Cómo se ve y entiende visualmente?</td></tr>
+          <tr><td>10-knowledge-base</td><td>¿Cómo resolver problemas sin depender de nadie?</td></tr>
+          <tr><td>11-incidents</td><td>¿Qué salió mal y qué se aprendió?</td></tr>
+          <tr><td>12-security</td><td>¿Cómo está protegido?</td></tr>
+          <tr><td>13-testing</td><td>¿Cómo se verifica que funciona?</td></tr>
+          <tr><td>14-changelog</td><td>¿Qué cambió entre versiones?</td></tr>
+          <tr><td>99-reference</td><td>¿Dónde está X rápidamente?</td></tr>
+          <tr><td>_templates</td><td>¿Cómo mantengo el mismo estándar?</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- REGLAS -->
+  <div class="section" id="reglas">
+    <div class="section-header">
+      <span class="section-num">—</span>
+      <h2>10 reglas de oro</h2>
+    </div>
+    <div class="rules-grid" id="rules-grid"></div>
+  </div>
+
+  <!-- RESUMEN -->
+  <div class="section" id="resumen">
+    <div class="section-header">
+      <span class="section-num">—</span>
+      <h2>El ciclo que lo hace valioso</h2>
+    </div>
+    <div class="flow" id="cycle-flow"></div>
+    <div class="philosophy-box" style="margin-top:1.5rem">
+      La documentación no es una tarea al final del proyecto. Es el sistema nervioso del proyecto — crece con él, registra su historia y permite que otros lo continúen.
+    </div>
+  </div>
+
+</main>
+
+<script>
+const TREE_DATA = [
+  { name: 'index.html', type: 'file', depth: 0, desc: 'Portal de entrada' },
+  { name: '00-overview/index.html', type: 'file', depth: 2, parent: 'f11b' },
+  { name: 'incidents/', type: 'folder', depth: 1, parent: 'f11', id: 'f11i' },
+  { name: 'known-issues/', type: 'folder', depth: 1, parent: 'f11', id: 'f11k' },
+  { name: '12-security/', type: 'folder', depth: 0, id: 'f12' },
+  { name: '13-testing/', type: 'folder', depth: 0, id: 'f13' },
+  { name: '14-changelog/', type: 'folder', depth: 0, id: 'f14' },
+  { name: '99-reference/', type: 'folder', depth: 0, id: 'f99' },
+  { name: '_templates/', type: 'folder', depth: 0, id: 'ftpl' },
+  { name: 'ADR/', type: 'folder', depth: 1, parent: 'ftpl', id: 'ftpla' },
+  { name: 'module/', type: 'folder', depth: 1, parent: 'ftpl', id: 'ftplm' },
+  { name: 'bug/', type: 'folder', depth: 1, parent: 'ftpl', id: 'ftplb' },
+  { name: 'knowledge-base/', type: 'folder', depth: 1, parent: 'ftpl', id: 'ftplk' },
+  { name: 'html/', type: 'folder', depth: 1, parent: 'ftpl', id: 'ftplh' },
+];
+
+function buildTree() {
+  const root = document.getElementById('tree-root');
+  const collapseState = {};
+
+  function render(parentId, container, baseDepth) {
+    const items = TREE_DATA.filter(i => i.parent === parentId);
+    items.forEach(item => {
+      const row = document.createElement('div');
+      row.className = 'tree-item';
+      const indent = '  '.repeat(item.depth - baseDepth);
+      const icon = item.type === 'folder' ? '' : '';
+      row.innerHTML = `<span class="indent">${indent}</span><span>${icon}</span><span class="name">${item.name}</span>${item.desc ? `<span class="desc">${item.desc}</span>` : ''}`;
+
+      if (item.type === 'folder' && item.id) {
+        const childContainer = document.createElement('div');
+        childContainer.className = 'tree-children';
+        childContainer.id = 'tc-' + item.id;
+        collapseState[item.id] = false;
+
+        row.addEventListener('click', () => {
+          collapseState[item.id] = !collapseState[item.id];
+          childContainer.classList.toggle('hidden', collapseState[item.id]);
+          row.classList.toggle('collapsed', collapseState[item.id]);
+        });
+
+        container.appendChild(row);
+        container.appendChild(childContainer);
+        render(item.id, childContainer, baseDepth);
+      } else {
+        container.appendChild(row);
+      }
+    });
+  }
+  render(undefined, root, 0);
+}
+buildTree();
+
+function expandAll() {
+  document.querySelectorAll('.tree-children').forEach(c => c.classList.remove('hidden'));
+  document.querySelectorAll('.tree-item.collapsed').forEach(r => r.classList.remove('collapsed'));
+}
+function collapseAll() {
+  document.querySelectorAll('.tree-children').forEach(c => c.classList.add('hidden'));
+  document.querySelectorAll('.tree-item').forEach(r => {
+    if (r.nextElementSibling && r.nextElementSibling.classList.contains('tree-children')) {
+      r.classList.add('collapsed');
+    }
+  });
+}
+
+function switchTab(btn, groupId, panelId) {
+  const group = document.getElementById(groupId)?.parentElement;
+  if (!group) return;
+  group.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  group.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(panelId)?.classList.add('active');
+}
+
+function copyTemplate(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  navigator.clipboard.writeText(el.innerText).then(() => {
+    const btn = event.target;
+    btn.textContent = ' Copiado';
+    setTimeout(() => btn.textContent = 'Copiar', 1500);
+  });
+}
+
+function filterNav(q) {
+  const links = document.querySelectorAll('#nav-items a');
+  links.forEach(a => {
+    a.style.display = a.textContent.toLowerCase().includes(q.toLowerCase()) ? '' : 'none';
+  });
+}
+
+const RULES = [
+  { num: '01', title: 'Documentar el porqué', desc: 'Si una decisión técnica puede generar dudas en el futuro, documentarla como ADR.' },
+  { num: '02', title: 'Documentar problemas', desc: 'Todo problema importante registra: problema, investigación, intentos, causa, resolución y validación.' },
+  { num: '03', title: 'Diferenciar mitigación de solución', desc: 'Una mitigación no debe marcarse como solución definitiva. Son estados distintos.' },
+  { num: '04', title: 'Convertir problemas en KB', desc: 'Si un problema puede volver a ocurrir, crear una guía de troubleshooting en la Knowledge Base.' },
+  { num: '05', title: 'La KB debe ser accionable', desc: 'Toda guía debe indicar cuándo usarla, requisitos, diagnóstico, pasos, resultado esperado, qué no hacer y rollback.' },
+  { num: '06', title: 'HTML cuando lo visual aporte valor', desc: 'Para mockups, walkthroughs, guías visuales, diagramas y flujos interactivos.' },
+  { num: '07', title: 'Markdown para conocimiento estructurado', desc: 'Para arquitectura, ADR, base de datos, APIs, configuración, incidentes y KB.' },
+  { num: '08', title: 'Mantener enlaces entre documentos', desc: 'Los bugs enlazan a KB. Los módulos enlazan a flujos. Los flujos enlazan a integraciones.' },
+  { num: '09', title: 'No almacenar secretos', desc: 'Nunca passwords, API keys, tokens ni credenciales reales. Solo documenta qué variables existen.' },
+  { num: '10', title: 'Sobrevivir al autor', desc: 'Una persona que no participó en el desarrollo debe poder entender y operar el sistema con la documentación.' },
+];
+
+const rulesGrid = document.getElementById('rules-grid');
+RULES.forEach(r => {
+  rulesGrid.innerHTML += `<div class="rule-item"><span class="rule-num">${r.num}</span><div class="rule-text"><h4>${r.title}</h4><p>${r.desc}</p></div></div>`;
+});
+
+const CYCLE = [
+  { emoji: '', label: 'Problema detectado', desc: 'Bug, incidente o comportamiento inesperado', color: 'var(--coral)' },
+  { emoji: '', label: 'Investigación', desc: 'Hipótesis, diagnóstico, logs, evidencia', color: 'var(--amber)' },
+  { emoji: '', label: 'Intentos documentados', desc: 'Cada intento con hipótesis y resultado', color: 'var(--amber)' },
+  { emoji: '', label: 'Causa identificada', desc: 'Causa raíz con nivel de certeza', color: 'var(--accent)' },
+  { emoji: '', label: 'Mitigación / Solución', desc: 'Distinto estado para cada tipo de resolución', color: 'var(--teal)' },
+  { emoji: '', label: 'Validación', desc: 'Caso original, regresiones, monitoreo', color: 'var(--teal)' },
+  { emoji: '', label: 'Knowledge Base', desc: 'Guía reutilizable para la próxima vez', color: 'var(--accent)' },
+];
+
+const flow = document.getElementById('cycle-flow');
+CYCLE.forEach((step, i) => {
+  const isLast = i === CYCLE.length - 1;
+  flow.innerHTML += `
+    <div class="flow-item">
+      <div class="flow-line">
+        <div class="flow-dot" style="background:${step.color}22;color:${step.color};font-size:1.1rem">${step.emoji}</div>
+        ${!isLast ? '<div class="flow-connector"></div>' : ''}
+      </div>
+      <div class="flow-content">
+        <h4>${step.label}</h4>
+        <p>${step.desc}</p>
+      </div>
+    </div>`;
+});
+
+const navLinks = document.querySelectorAll('nav a');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navLinks.forEach(l => l.classList.remove('active'));
+      const id = e.target.id;
+      const link = document.querySelector(`nav a[href="#${id}"]`);
+      if (link) link.classList.add('active');
+    }
+  });
+}, { threshold: 0.3 });
+document.querySelectorAll('.section[id], .page-header[id]').forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
